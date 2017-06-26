@@ -38,7 +38,7 @@ class CatalogController extends Controller
             return $data;
         });
 
-        return view('front.catalog.root', $data);
+        return view('larrock::front.catalog.root', $data);
     }
 
     /**
@@ -64,7 +64,7 @@ class CatalogController extends Controller
 			return $data;
 		});*/
 
-		return view('front.catalog.categorys', $data);
+		return view('larrock::front.catalog.categorys', $data);
 	}
 
 	/**
@@ -83,9 +83,6 @@ class CatalogController extends Controller
 		$paginate = $request->cookie('perPage', 24);
 		$sort_cost = $request->cookie('sort_cost');
 
-		if($category === 'stroymaterialy-1' AND !$child){
-			return redirect('/');
-		}
 		//Смотрим какой раздел выбираем для работы
 		//Первый уровень: /Раздел
 		$select_category = $category;
@@ -100,6 +97,11 @@ class CatalogController extends Controller
 
 		//Модуль списка разделов справа
 		$data['module_listCatalog'] = $HelperCatalog->listCatalog($select_category);
+
+        if(Catalog::whereUrl($select_category)->first()){
+            //Это товар, а не раздел
+            return $this->getItem($select_category, $data['module_listCatalog']);
+        }
 
         $category_array = collect([]);
         $output = Category::whereComponent('catalog')->whereActive(1)->whereUrl($select_category)->with(['get_childActive'])->first();
@@ -264,15 +266,17 @@ class CatalogController extends Controller
 			$breadcrumbs->push($data->title);
 		});
 
-        $discountHelper = new DiscountHelper();
-        foreach ($data['data']->get_tovarsActive as $key => $item){
-            $data['data']->get_tovarsActive->{$key} = $discountHelper->apply_discountsByTovar($item);
+        if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
+            $discountHelper = new DiscountHelper();
+            foreach ($data['data']->get_tovarsActive as $key => $item){
+                $data['data']->get_tovarsActive->{$key} = $discountHelper->apply_discountsByTovar($item);
+            }
         }
 
 		if($request->cookie('vid') === 'table'){
-			return view('front.catalog.items-table', $data);
+			return view('larrock::front.catalog.items-table', $data);
 		}
-        return view('front.catalog.items-4-3', $data);
+        return view('larrock::front.catalog.items-4-3', $data);
 	}
 
     /**
@@ -282,9 +286,13 @@ class CatalogController extends Controller
      */
 	public function getItem($item, $module_listCatalog)
 	{
-        $discountHelper = new DiscountHelper();
-		$data['data'] = Catalog::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
-        $data['data'] = $discountHelper->apply_discountsByTovar($data['data']);
+        if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
+            $discountHelper = new DiscountHelper();
+            $data['data'] = Catalog::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
+            $data['data'] = $discountHelper->apply_discountsByTovar($data['data']);
+        }else{
+            $data['data'] = Catalog::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
+        }
 
         //Модуль с товарами из этого же раздела
         /*$key = sha1('modincat_'. $data['data']->id .'_'. $item);
@@ -323,7 +331,7 @@ class CatalogController extends Controller
 			$data['seo']['title'] = $data['data']->title;
 		}
 
-		return view('front.catalog.item', $data);
+		return view('larrock::front.catalog.item', $data);
 	}
 
     /**
@@ -378,7 +386,7 @@ class CatalogController extends Controller
 			$breadcrumbs->push('Поиск по слову "'. $words .'"');
 		});
 
-		return view('front.catalog.items-search-result', $data);
+		return view('larrock::front.catalog.items-search-result', $data);
 	}
 
     /**

@@ -18,7 +18,9 @@ $data->title }} {{$seo_midd['catalog_category_postfix']}}. {{ $seo_midd['postfix
                 <th>Наименование</th>
                 <th>Описание</th>
                 <th>Цена</th>
-                <th></th>
+                @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
+                    <th></th>
+                @endif
             </tr>
             </thead>
             <tbody>
@@ -27,8 +29,10 @@ $data->title }} {{$seo_midd['catalog_category_postfix']}}. {{ $seo_midd['postfix
                     <td>{{ $item->title }}</td>
                     <td>{{ $item->short }}</td>
                     <td>{{ $item->cost }} {{ $item->what }}</td>
-                    <td><img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
-                             data-id="{{ $item->id }}" width="40" height="25"></td>
+                    @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
+                        <td><img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
+                                 data-id="{{ $item->id }}" width="40" height="25"></td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>

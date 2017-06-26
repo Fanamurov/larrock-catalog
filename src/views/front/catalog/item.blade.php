@@ -23,21 +23,23 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
                 </div>
             </div>
             <div class="col-xs-12">
-                <div class="form-addToCart">
-                    <div class="input-group">
-                        <span class="input-group-addon addon-x">X</span>
-                        <input type="text" class="form-control kolvo" id="kolvo-{{ $data->id }}" name="kolvo" value="{{ $data->min_part*1000 }}">
-                        <span class="input-group-addon addon-what">кг</span>
-                        <div class="input-group-btn">
-                            <span class="btn btn-info pull-right">
-                                <img src="/_assets/_front/_images/icons/icon_cart_white.png"
-                                     alt="Добавить в корзину" class="submit_to_cart pointer"
-                                     data-id="{{ $data->id }}" width="32" height="32">
-                            </span>
+                @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
+                    <div class="form-addToCart">
+                        <div class="input-group">
+                            <span class="input-group-addon addon-x">X</span>
+                            <input type="text" class="form-control kolvo" id="kolvo-{{ $data->id }}" name="kolvo" value="{{ $data->min_part*1000 }}">
+                            <span class="input-group-addon addon-what">кг</span>
+                            <div class="input-group-btn">
+                                <span class="btn btn-info pull-right">
+                                    <img src="/_assets/_front/_images/icons/icon_cart_white.png"
+                                         alt="Добавить в корзину" class="submit_to_cart pointer"
+                                         data-id="{{ $data->id }}" width="32" height="32">
+                                </span>
+                            </div>
                         </div>
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     </div>
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                </div>
+                @endif
             </div>
         </div>
         <div class="row row-description">
@@ -45,20 +47,11 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
                 <div class="catalogFull">
                     <div>{!! $data->description !!}</div>
                     <div class="catalog-descriptions-rows">
-                        @foreach($config_app['rows'] as $row_key => $row)
-                            @if(array_key_exists('template', $row) && $row['template'] === 'description' && isset($data->$row_key) && !empty($data->$row_key))
-                                <p><strong>{{ $row['title'] }}:</strong> {{ $data->$row_key }}</p>
-                            @else
-                                @foreach($config_wizard->value as $wizard)
-                                    @if($wizard['db'] === $row_key && (array_get($wizard, 'template') === 'category' OR array_get($wizard, 'template') === 'all'))
-                                        <p><strong>{{ $wizard['slug'] }}:</strong> {{ $data->$row_key }}</p>
-                                    @endif
-                                @endforeach
+                        @foreach($app->rows as $row_key => $row)
+                            @if($row->template === 'description' && isset($data->{$row_key}) && !empty($data->{$row_key}))
+                                <p><strong>{{ $row->title }}:</strong> {{ $data->{$row_key} }}</p>
                             @endif
                         @endforeach
-                    </div>
-                    <div>
-                        <a href="/page/kontakty#form-contact" class="btn btn-primary btn-to-form-item">Задать вопрос</a>
                     </div>
                 </div>
             </div>

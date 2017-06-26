@@ -3,7 +3,15 @@
 use Larrock\ComponentCatalog\AdminCatalogController;
 use Larrock\ComponentCatalog\CatalogController;
 
-Route::group(['middleware' => ['web', 'AddMenuFront', 'GetSeo', 'AddBlocksTemplate']], function(){
+$middlewares = ['web', 'GetSeo'];
+if(file_exists(base_path(). '/vendor/fanamurov/larrock-menu')){
+    $middlewares[] = 'AddMenuFront';
+}
+if(file_exists(base_path(). '/vendor/fanamurov/larrock-blocks')){
+    $middlewares[] = 'AddBlocksTemplate';
+}
+
+Route::group(['middleware' => $middlewares], function(){
     Route::get('/catalog', function()
     {
         return Redirect::to('/');
@@ -50,10 +58,6 @@ Route::group(['prefix' => 'admin', 'middleware'=> ['web', 'level:2', 'LarrockAdm
         'edit' => 'admin.catalog.edit',
     ]]);
     Route::post('catalog/copy', AdminCatalogController::class .'@copy');
-
-    Route::get('/', [
-        'as' => 'admin.home', 'uses' => AdminCatalogController::class .'@index'
-    ]); //Роут главной страницы админки
 
     Route::post('/ajax/getTovar', [
         'as' => 'ajax.admin.getTovar', 'uses' => AdminCatalogController::class .'@getTovar'

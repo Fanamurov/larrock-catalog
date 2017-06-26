@@ -18,13 +18,14 @@ class HelperCatalog{
     public function listCatalog($category_url)
     {
         $data = Cache::remember('list_catalog'. $category_url, 1440, function() use ($category_url) {
-            $data['current'] = Category::whereUrl($category_url)->first();
-            $data['current_level'] = Category::whereParent($data['current']->parent)->get();
-            $data['next_level'] = Category::whereParent($data['current']->id)->get();
-            if(count($data['next_level']) < 1){
-                $data['current'] = Category::whereId($data['current']->parent)->first();
-                $data['next_level'] = $data['current_level'];
+            if($data['current'] = Category::whereUrl($category_url)->first()){
                 $data['current_level'] = Category::whereParent($data['current']->parent)->get();
+                $data['next_level'] = Category::whereParent($data['current']->id)->get();
+                if(count($data['next_level']) < 1){
+                    $data['current'] = Category::whereId($data['current']->parent)->first();
+                    $data['next_level'] = $data['current_level'];
+                    $data['current_level'] = Category::whereParent($data['current']->parent)->get();
+                }
             }
             return $data;
         });

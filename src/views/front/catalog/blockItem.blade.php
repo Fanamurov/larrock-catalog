@@ -3,9 +3,11 @@
         <a class="admin_edit" href="/admin/catalog/{{ $data->id }}/edit">Edit element</a>
     @endlevel
     <div class="catalogImage link_block_this111" data-href="{!! URL::current() !!}/{{ $data->url }}">
-        <img src="{{ $data->first_image }}" class="catalogImage max-width action_add_to_cart pointer" data-id="{{ $data->id }}" >
-        <img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
-             data-id="{{ $data->id }}" width="40" height="25">
+        <img src="{{ $data->first_image }}" class="catalogImage max-width @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart')) action_add_to_cart @endif pointer" data-id="{{ $data->id }}">
+        @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
+            <img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
+                 data-id="{{ $data->id }}" width="40" height="25">
+        @endif
         <div class="cost text-center">
             @if($data->cost == 0)
                 <span class="empty-cost">под заказ</span>
@@ -25,14 +27,6 @@
             @foreach($app->rows as $row_key => $row)
                 @if($row->template && $row->template === 'in_card' && isset($data->{$row_key}) && !empty($data->{$row_key}))
                     <p><strong>{{ $row->title }}:</strong> {{ $data->{$row_key} }}</p>
-                @else
-                    @if(isset($config_wizard))
-                        @foreach($config_wizard as $wizard)
-                            @if($wizard['db'] === $row_key && (array_get($wizard, 'template') === 'category' || array_get($wizard, 'template') === 'all'))
-                                <p><strong>{{ $wizard['slug'] }}:</strong> {{ $data->{$row_key} }}</p>
-                            @endif
-                        @endforeach
-                    @endif
                 @endif
             @endforeach
         </div>
