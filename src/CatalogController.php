@@ -104,7 +104,7 @@ class CatalogController extends Controller
         }
 
         $category_array = collect([]);
-        $output = Category::whereComponent('catalog')->whereActive(1)->whereUrl($select_category)->with(['get_childActive'])->first();
+        $output = Category::whereComponent('catalog')->whereActive(1)->whereUrl($select_category)->with(['get_childActive'])->firstOrFail();
         foreach($output->get_childActive as $value){
             $category_array->push($value->id);
             foreach($value->get_childActive as $child_active){
