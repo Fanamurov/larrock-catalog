@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateLarrockOptionParamTable extends Migration {
+class CreateOptionParamTable extends Migration {
 
 	/**
 	 * Run the migrations.

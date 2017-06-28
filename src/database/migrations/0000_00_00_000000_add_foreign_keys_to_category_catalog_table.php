@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddForeignKeysToLarrockCategoryCatalogTable extends Migration {
+class AddForeignKeysToCategoryCatalogTable extends Migration {
 
 	/**
 	 * Run the migrations.
