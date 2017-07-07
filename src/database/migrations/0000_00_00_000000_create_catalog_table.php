@@ -16,10 +16,10 @@ class CreateCatalogTable extends Migration {
 		{
 			$table->increments('id');
 			$table->char('title');
-			$table->text('short');
-			$table->text('description');
+			$table->text('short')->nullable();
+			$table->text('description')->nullable();
 			$table->char('url')->unique();
-			$table->char('what')->default('');
+			$table->char('what')->nullable();
 			$table->float('cost', 10)->default(0.00);
 			$table->float('cost_old', 10)->nullable();
 			$table->char('manufacture')->nullable();
@@ -31,7 +31,7 @@ class CreateCatalogTable extends Migration {
 			$table->integer('label_sale')->nullable();
 			$table->integer('label_new')->nullable();
 			$table->integer('label_popular')->nullable();
-			$table->integer('user_id')->unsigned()->index('catalog_user_id_foreign');
+			$table->integer('user_id')->unsigned()->index('catalog_user_id_foreign')->nullable();
 			$table->timestamps();
 		});
 	}

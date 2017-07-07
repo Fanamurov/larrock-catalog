@@ -79,15 +79,6 @@ class CatalogComponent extends Component
             ->setConnect(Param::class, 'get_param')
             ->setAttached()->setUserSelect();
 
-        $row = new FormInput('razmer_h', 'Высота');
-        $this->rows['razmer_h'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->isRequired()->setFrontPlace('description')->setInTableAdminAjaxEditable();
-
-        $row = new FormInput('razmer_w', 'Ширина');
-        $this->rows['razmer_w'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->isRequired()->setFrontPlace('description')->setInTableAdminAjaxEditable();
-
-        $row = new FormInput('baget_h', 'Высота рамки в px');
-        $this->rows['baget_h'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
-
         return $this;
     }
 
