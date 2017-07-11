@@ -13,7 +13,7 @@
         @each('larrock::front.catalog.blockItem', $data, 'data')
     </div>
 
-    <div class="Pagination catalogPagination">{!! $data->render() !!}</div>
+    {{ $data->links('larrock::front.modules.pagination.uikit') }}
 @endsection
 
 @section('title_search') Поиск: {{ $words }} @endsection

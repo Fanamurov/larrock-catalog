@@ -11,7 +11,7 @@ $seo['title'] }} {{$seo_midd['catalog_category_postfix']}}. {{ $seo_midd['postfi
         @endforeach
     </div>
 
-    <div class="Pagination catalogPagination">{!! $paginator->render() !!}</div>
+    {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
 @endsection
 
 @section('front.modules.list.catalog')

@@ -17,6 +17,11 @@ Route::group(['middleware' => $middlewares], function(){
         return Redirect::to('/');
     });
 
+    Route::get('/root', [
+        'as' => 'catalog.root', 'uses' => CatalogController::class .'@getCategoryRoot'
+    ]);
+
+
     Route::get('/catalog/all', [
         'as' => 'catalog.all', 'uses' => CatalogController::class .'@getAllTovars'
     ]);

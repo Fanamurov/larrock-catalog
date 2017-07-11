@@ -41,7 +41,7 @@ class AdminCatalogController extends Controller
 	 */
 	public function index()
 	{
-		$data['categories'] = Category::whereComponent('catalog')->whereLevel(1)->orderBy('position', 'DESC')->with(['get_child', 'get_parent'])->paginate(30);
+		$data['categories'] = Category::whereComponent('catalog')->whereLevel(0)->orderBy('position', 'DESC')->with(['get_child', 'get_parent'])->paginate(30);
 		$data['nalichie'] = Catalog::where('nalichie', '<', 1)->get();
 
 		return view('larrock::admin.catalog.index', $data);

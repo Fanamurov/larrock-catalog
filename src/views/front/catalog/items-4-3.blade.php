@@ -19,11 +19,11 @@
         @include('larrock::front.modules.filters.lilu')
     </div>
 
-    <div class="catalogPageCategoryItems uk-grid">
+    <div class="catalogPageCategoryItems uk-grid uk-margin-large-top uk-margin-large-bottom">
         @each('larrock::front.catalog.blockItem', $data->get_tovarsActive, 'data')
     </div>
 
-    <div class="Pagination catalogPagination">{!! $data->get_tovarsActive->render() !!}</div>
+    {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
 
     @if( !empty($data->description))
         <div class="catalog-CategoryDescription">

@@ -10,7 +10,7 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
         @each('larrock::front.catalog.blockItem', $data->get_tovarsActive, 'data')
     </div>
 
-    <div class="Pagination catalogPagination">{!! $paginator->render() !!}</div>
+    {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
 @endsection
 
 @section('front.modules.list.catalog')

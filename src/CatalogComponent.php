@@ -11,6 +11,7 @@ use Larrock\Core\Helpers\FormBuilder\FormSelect;
 use Larrock\Core\Helpers\FormBuilder\FormTagsCreate;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 use Larrock\Core\Component;
+use Larrock\Core\Models\Config;
 
 class CatalogComponent extends Component
 {
@@ -82,12 +83,61 @@ class CatalogComponent extends Component
         return $this;
     }
 
+    /**
+     * Объединение конфига компонента с конфигом каталога из Wizard
+     * @return $this
+     */
+    public function mergeWizardConfig()
+    {
+        if($data = Config::whereType('wizard')->whereName('catalog')->first()){
+            foreach ($data->value as $wizard_key => $wizard_item){
+                if(isset($this->rows[$wizard_item['db']])){
+                    if($wizard_item['slug'] && !empty($wizard_item['slug'])){
+                        $this->rows[$wizard_item['db']]->title = $wizard_item['slug'];
+                    }
+                    if($wizard_item['filters']){
+                        if($wizard_item['filters'] === 'lilu'){
+                            $this->rows[$wizard_item['db']]->filtered = TRUE;
+                        }
+                        if($wizard_item['filters'] === 'sort'){
+                            $this->rows[$wizard_item['db']]->sorted = TRUE;
+                        }
+                    }
+                    if($wizard_item['template']){
+                        $this->rows[$wizard_item['db']]->template = $wizard_item['template'];
+                    }
+                }else{
+                    //Добавляем поля созданные в визарде
+                    if($wizard_item['db']){
+                        if( empty($wizard_item['slug'])){
+                            $wizard_item['slug'] = $wizard_key;
+                        }
+                        $row = new FormInput($wizard_key, $wizard_item['slug']);
+                        if($wizard_item['filters']){
+                            if($wizard_item['filters'] === 'lilu'){
+                                $row->filtered = TRUE;
+                            }
+                            if($wizard_item['filters'] === 'sort'){
+                                $row->sorted = TRUE;
+                            }
+                        }
+                        if($wizard_item['template']){
+                            $row->setTemplate($wizard_item['template']);
+                        }
+                        $this->rows[$wizard_key] = $row;
+                    }
+                }
+            }
+        }
+        return $this;
+    }
+
     public function renderAdminMenu()
     {
         $count = \Cache::remember('count-data-admin-'. $this->name, 1440, function(){
             return Catalog::count(['id']);
         });
-        $dropdown = Category::whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        $dropdown = Category::whereComponent('catalog')->whereLevel(0)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
         $push = collect();
         if(in_array('Larrock\ComponentWizard\WizardComponent', get_declared_classes())){
             $push->put('Wizard - импорт товаров', '/admin/wizard');

@@ -21,7 +21,7 @@ class HelperCatalog{
             if($data['current'] = Category::whereUrl($category_url)->first()){
                 $data['current_level'] = Category::whereParent($data['current']->parent)->get();
                 $data['next_level'] = Category::whereParent($data['current']->id)->get();
-                if(count($data['next_level']) < 1){
+                if($data['current']->parent){
                     $data['current'] = Category::whereId($data['current']->parent)->first();
                     $data['next_level'] = $data['current_level'];
                     $data['current_level'] = Category::whereParent($data['current']->parent)->get();
