@@ -31,15 +31,11 @@ Route::group(['middleware' => $middlewares], function(){
     Route::get('/catalog/{category}', [
         'as' => 'catalog.category', 'uses' => CatalogController::class .'@getCategoryExpanded'
     ]);
-    Route::get('/catalog/{category}/{child}', [
-        'as' => 'catalog.category.child', 'uses' => CatalogController::class .'@getCategoryExpanded'
-    ]);
-    Route::get('/catalog/{category}/{child}/{grandson}', [
-        'as' => 'catalog.category.grandson', 'uses' => CatalogController::class .'@getCategoryExpanded'
-    ]);
-    Route::get('/catalog/{category}/{child}/{grandson}/{item}', [
-        'as' => 'catalog.category.grandson.item', 'uses' => CatalogController::class .'@getItem'
-    ]);
+    /*
+    //OR:
+    Route::get('/catalog/{category}/{subcategory?}/{subsubcategory?}/{subsubsubcategory?}', [
+        'as' => 'catalog.category', 'uses' => '\Larrock\ComponentCatalog\CatalogController@getCategory'
+    ]);*/
 
     Route::any('/search/catalog/serp/{words?}', [
         'as' => 'search.catalog', 'uses' => CatalogController::class .'@searchResult'

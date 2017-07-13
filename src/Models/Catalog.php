@@ -2,7 +2,7 @@
 
 namespace Larrock\ComponentCatalog\Models;
 
-use App\Helpers\DiscountHelper;
+use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentCategory\Models\Category;

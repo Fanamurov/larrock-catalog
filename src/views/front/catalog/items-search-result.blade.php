@@ -9,11 +9,9 @@
         @include('larrock::front.modules.filters.itemsOnPage')
     </div>
 
-    <div class="catalogPageCategoryItems row">
+    <div class="uk-grid uk-grid-medium uk-grid-match uk-margin-large-top">
         @each('larrock::front.catalog.blockItem', $data, 'data')
     </div>
 
     {{ $data->links('larrock::front.modules.pagination.uikit') }}
 @endsection
-
-@section('title_search') Поиск: {{ $words }} @endsection

@@ -42,10 +42,10 @@ class CatalogController extends Controller
             return $data;
         });
 
-        return view('larrock::front.catalog.root', $data);
+        return view('larrock::front.catalog.categories', $data);
     }
 
-    public function getCategory(Request $request, $category, $subcategory = NULL, $subsubcategory = NULL)
+    public function getCategory(Request $request, $category, $subcategory = NULL, $subsubcategory = NULL, $subsubsubcategory = NULL)
     {
         $paginate = $request->cookie('perPage', 24);
         $sort_cost = $request->cookie('sort_cost');
@@ -57,6 +57,10 @@ class CatalogController extends Controller
             if($subsubcategory){
                 //Вложенный раздел: /Раздел/Подраздел/Подраздел
                 $select_category = $subsubcategory;
+                if($subsubsubcategory){
+                    //Вложенный раздел: /Раздел/Подраздел/Подраздел
+                    $select_category = $subsubsubcategory;
+                }
             }
         }
 
@@ -72,17 +76,27 @@ class CatalogController extends Controller
         $get_category = Category::whereUrl($select_category)->with(['get_child'])->first();
         $get_category->get_tovarsActive = $get_category->get_tovarsActive()->paginate($paginate);
 
-        Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
-        {
-            foreach ($data->parent_tree as $item){
-                $breadcrumbs->push($item->title, $item->full_url);
-            }
-        });
-
         if(count($get_category->get_child)> 0){
-            return view('larrock::front.catalog.root', ['data' => $get_category->get_child]);
+            Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
+            {
+                $breadcrumbs->push('Каталог', '/');
+                foreach ($data->first()->parent_tree as $item){
+                    if($data->first()->id !== $item->id){
+                        $breadcrumbs->push($item->title, $item->full_url);
+                    }
+                }
+            });
+            return view('larrock::front.catalog.categories', ['data' => $get_category->get_child]);
         }else{
             if(count($get_category->get_tovarsActive) > 0){
+                Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
+                {
+                    $breadcrumbs->push('Каталог', '/');
+                    foreach ($data->parent_tree as $item){
+                        $breadcrumbs->push($item->title, $item->full_url);
+                    }
+                });
+
                 return view('larrock::front.catalog.items-table', [
                     'data' => $get_category,
                     'module_listCatalog' =>$module_listCatalog,
