@@ -1,6 +1,6 @@
 @extends('larrock::front.main')
-@section('title'){{$seo_midd['catalog_category_prefix']}} {{$data->get_seo->seo_title or
-$data->title }} {{$seo_midd['catalog_category_postfix']}}. {{ $seo_midd['postfix_global'] }}@endsection
+@section('title'){{$seo_midd['catalog_category_prefix']}}{{$data->get_seo->seo_title or
+$data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}@endsection
 
 @section('content')
     {!! Breadcrumbs::render('catalog.category', $data) !!}
@@ -61,7 +61,7 @@ $data->title }} {{$seo_midd['catalog_category_postfix']}}. {{ $seo_midd['postfix
                             <i class="uk-icon-close"></i>
                         @endif
                     </td>
-                    <td>{{ $item->cost }} <small>руб./{{ $item->what }}</small></td>
+                    <td class="nowrap">{{ $item->cost }} <small>руб./{{ $item->what }}</small></td>
                     @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
                         <td><img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
                                  width="40" height="25" data-id="{{ $item->id }}"></td>

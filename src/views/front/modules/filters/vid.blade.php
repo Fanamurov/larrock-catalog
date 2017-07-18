@@ -1,5 +1,5 @@
-<div class="module-filter-vid module-filter">
-    <span class="vid">Вид:</span>
-    <span class="change_catalog_template label link @if(Cookie::get('vid', 'cards') === 'cards') active @endif" data-value="cards">плитка</span>
-    <span class="change_catalog_template label link @if(Cookie::get('vid', 'cards') === 'table') active @endif" data-value="table">таблица</span>
+<div class="module-filter-vid module-filter nowrap">
+    <span class="label">Вид:</span>
+    <span class="change_catalog_template uk-link @if(Cookie::get('vid', 'cards') === 'cards') uk-active @endif" data-value="cards">плитка</span>
+    <span class="change_catalog_template uk-link @if(Cookie::get('vid', 'cards') === 'table') uk-active @endif" data-value="table">таблица</span>
 </div>

@@ -1,7 +1,7 @@
 <form action="" method="get" class="catalog-filters" id="block_sorters">
     @foreach($filter as $filter_key => $filter_value)
-        @if(count($filter_value['values']) > 0)
-            <div class="uk-button-dropdown" data-uk-dropdown="">
+        @if(count($filter_value['values']) > 1)
+            <div class="uk-button-dropdown nowrap" data-uk-dropdown="">
                 <button class="uk-button" type="button">
                     {{ $filter_value['name'] }}:
                     @if(Request::has($filter_key))
