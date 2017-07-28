@@ -20,7 +20,7 @@ class CatalogComponent extends Component
         $this->name = $this->table = 'catalog';
         $this->title = 'Каталог';
         $this->description = 'Каталог товаров';
-        $this->model = Catalog::class;
+        $this->model = \config('larrock.models.catalog', Catalog::class);
         $this->addRows()->addPositionAndActive()->isSearchable()->addPlugins();
     }
 
@@ -141,7 +141,7 @@ class CatalogComponent extends Component
         $count = \Cache::remember('count-data-admin-'. $this->name, 1440, function(){
             return Catalog::count(['id']);
         });
-        $dropdown = Category::whereComponent('catalog')->whereLevel(0)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        $dropdown = Category::whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
         $push = collect();
         if(in_array('Larrock\ComponentWizard\WizardComponent', get_declared_classes())){
             $push->put('Wizard - импорт товаров', '/admin/wizard');
@@ -154,7 +154,7 @@ class CatalogComponent extends Component
 
     public function createSitemap()
     {
-        return Catalog::whereActive(1)->whereHas('get_category', function ($q){
+        return $this->model::whereActive(1)->whereHas('get_category', function ($q){
             $q->where('sitemap', '=', 1);
         })->get();
     }

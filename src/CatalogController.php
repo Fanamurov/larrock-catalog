@@ -17,15 +17,17 @@ use Session;
 class CatalogController extends Controller
 {
     protected $config;
+    protected $component;
 
     public function __construct()
     {
-        $Component = new CatalogComponent();
+        $Component = config('larrock.components.catalog', CatalogComponent::class);
+        $this->component = new $Component;
 
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-wizard')){
-            $Component->mergeWizardConfig();
+            $this->component->mergeWizardConfig();
         }
-        $this->config = $Component->shareConfig();
+        $this->config = $this->component->shareConfig();
 
         Breadcrumbs::register('catalog.index', function($breadcrumbs){
             $breadcrumbs->push('Каталог', '/catalog');
@@ -38,7 +40,7 @@ class CatalogController extends Controller
     public function getCategoryRoot()
     {
         $data = Cache::remember('getTovars_root', 1440, function(){
-            $data['data'] = Category::whereLevel(0)->orderBy('position', 'DESC')->get();
+            $data['data'] = Category::whereLevel(1)->whereComponent('catalog')->orderBy('position', 'DESC')->get();
             return $data;
         });
 
@@ -68,9 +70,9 @@ class CatalogController extends Controller
         $HelperCatalog = new HelperCatalog();
         $module_listCatalog = $HelperCatalog->listCatalog($select_category);
 
-        if(Catalog::whereUrl($select_category)->first()){
+        if($this->component->model::whereUrl($select_category)->first()){
             //Это товар, а не раздел
-            return $this->getItem($select_category, $module_listCatalog);
+            return $this->getItem($request, $select_category, $module_listCatalog);
         }
 
         $get_category = Category::whereUrl($select_category)->with(['get_child'])->first();
@@ -87,26 +89,26 @@ class CatalogController extends Controller
                 }
             });
             return view('larrock::front.catalog.categories', ['data' => $get_category->get_child]);
-        }else{
-            if(count($get_category->get_tovarsActive) > 0){
-                Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
-                {
-                    $breadcrumbs->push('Каталог', '/');
-                    foreach ($data->parent_tree as $item){
-                        $breadcrumbs->push($item->title, $item->full_url);
-                    }
-                });
-
-                return view('larrock::front.catalog.items-table', [
-                    'data' => $get_category,
-                    'module_listCatalog' =>$module_listCatalog,
-                    'sort' => $this->addSort(),
-                    'filter' => $this->addFilters($request, $categories = [$get_category->id], $data = $get_category->get_tovarsActive())
-                ]);
-            }else{
-                return abort(404, 'Товаров не найдено');
-            }
         }
+
+        if(count($get_category->get_tovarsActive) > 0){
+            Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
+            {
+                $breadcrumbs->push('Каталог', '/');
+                foreach ($data->parent_tree as $item){
+                    $breadcrumbs->push($item->title, $item->full_url);
+                }
+            });
+
+            return view('larrock::front.catalog.items-4-3', [
+                'data' => $get_category,
+                'module_listCatalog' =>$module_listCatalog,
+                'sort' => $this->addSort(),
+                'filter' => $this->addFilters($request, $categories = [$get_category->id], $data = $get_category->get_tovarsActive())
+            ]);
+        }
+
+        return abort(404, 'Товаров не найдено');
     }
 
     protected function addSort()
@@ -125,8 +127,8 @@ class CatalogController extends Controller
     /**
      * Добавление фильтров для товаров каталога
      * @param Request $request
-     * @param $categories           Массив с разделами для поиска
-     * @param $data                 Массив с товарами
+     * @param array $categories           Массив с разделами для поиска
+     * @param array $data                 Массив с товарами
      * @return array
      */
     protected function addFilters(Request $request, $categories, $data)
@@ -170,7 +172,7 @@ class CatalogController extends Controller
                     $data['filter'][$key]['values'][0]->allow = NULL;
                 }*/
 
-                $filters[$key]['values'] = Catalog::whereActive(1)->whereHas('get_category', function ($q) use ($categories, $request){
+                $filters[$key]['values'] = $this->component->model::whereActive(1)->whereHas('get_category', function ($q) use ($categories, $request){
                     $q->whereIn('category.id', $categories);
                 })->groupBy($key)->get([$key]);
                 $filters[$key]['name'] = $value->title;
@@ -228,7 +230,7 @@ class CatalogController extends Controller
         //Модуль списка разделов справа
         $data['module_listCatalog'] = $HelperCatalog->listCatalog($select_category);
 
-        if(Catalog::whereUrl($select_category)->first()){
+        if($this->component->model::whereUrl($select_category)->first()){
             //Это товар, а не раздел
             return $this->getItem($select_category, $data['module_listCatalog']);
         }
@@ -254,7 +256,7 @@ class CatalogController extends Controller
                 return FALSE;
             }
 
-            $output->get_tovarsActive = Catalog::whereActive(1)->whereHas('get_category', function ($q) use ($category_array){
+            $output->get_tovarsActive = $this->component->model::whereActive(1)->whereHas('get_category', function ($q) use ($category_array){
                 $q->whereIn('category.id', $category_array);
             });
 
@@ -345,7 +347,7 @@ class CatalogController extends Controller
                         $data['filter'][$key]['values'][0]->allow = NULL;
                     }*/
 
-                    $data['filter'][$key]['values'] = Catalog::whereActive(1)->whereHas('get_category', function ($q) use ($category_array, $request){
+                    $data['filter'][$key]['values'] = $this->component->model::whereActive(1)->whereHas('get_category', function ($q) use ($category_array, $request){
                         $q->whereIn('category.id', $category_array);
                     })->groupBy($key)->get([$key]);
                     $data['filter'][$key]['name'] = $value['title'];
@@ -414,14 +416,14 @@ class CatalogController extends Controller
      * @param $module_listCatalog
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getItem($item, $module_listCatalog)
+    public function getItem(Request $request, $item, $module_listCatalog)
     {
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
-            $data['data'] = Catalog::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
+            $data['data'] = $this->component->model::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
             $data['data'] = $discountHelper->apply_discountsByTovar($data['data']);
         }else{
-            $data['data'] = Catalog::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
+            $data['data'] = $this->component->model::whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
         }
 
         //Модуль с товарами из этого же раздела
@@ -475,7 +477,7 @@ class CatalogController extends Controller
             return \Response::json(array(), 400);
         }
 
-        $search = Catalog::search($query)->with(['get_category'])->whereActive(1)->groupBy('title')->get()->toArray();
+        $search = $this->component->model::search($query)->with(['get_category'])->whereActive(1)->groupBy('title')->get()->toArray();
         return \Response::json($search);
     }
 
@@ -490,7 +492,7 @@ class CatalogController extends Controller
             return \Response::json(array(), 400);
         }
 
-        $search = Catalog::search($query)->whereActive(1)->get()->toArray();
+        $search = $this->component->model::search($query)->whereActive(1)->get()->toArray();
         return \Response::json($search);
     }
 
@@ -508,7 +510,7 @@ class CatalogController extends Controller
         }
         $paginate = Cookie::get('perPage', 24);
 
-        $data['data'] = Catalog::search($words)->with(['get_category'])->whereActive(1)->paginate($paginate);
+        $data['data'] = $this->component->model::search($words)->with(['get_category'])->whereActive(1)->paginate($paginate);
         $data['words'] = $words;
 
         Breadcrumbs::register('catalog.search', function($breadcrumbs) use ($words){
@@ -562,7 +564,7 @@ class CatalogController extends Controller
      */
     public function getTovar(Request $request)
     {
-        if($get_tovar = Catalog::whereId($request->get('id', 33))->with(['get_category'])->first()){
+        if($get_tovar = $this->component->model::whereId($request->get('id', 33))->with(['get_category'])->first()){
             if(file_exists(base_path(). '/vendor/fanamurov/larrock-discount')){
                 $discountHelper = new DiscountHelper();
                 $get_tovar = $discountHelper->apply_discountsByTovar($get_tovar);

@@ -228,7 +228,7 @@ class Catalog extends Model implements HasMediaConversions
 	public function getFirstImageAttribute()
 	{
 		$value = Cache::remember('image_f_tovar'. $this->id, 1440, function() {
-			if($get_image = $this->getMedia('images')->sortByDesc('order_column')->first()){
+			if($get_image = $this->getFirstImage()->first()){
 				return $get_image->getUrl();
 			}
             return '/_assets/_front/_images/empty_big.png';

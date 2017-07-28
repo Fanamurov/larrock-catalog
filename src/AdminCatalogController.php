@@ -22,11 +22,13 @@ use View;
 class AdminCatalogController extends Controller
 {
 	protected $config;
+	protected $component;
 
 	public function __construct()
 	{
-        $Component = new CatalogComponent();
-        $this->config = $Component->shareConfig();
+        $Component = config('larrock.components.catalog', CatalogComponent::class);
+        $this->component = new $Component;
+        $this->config = $this->component->shareConfig();
 
         Breadcrumbs::setView('larrock::admin.breadcrumb.breadcrumb');
 		Breadcrumbs::register('admin.'. $this->config->name .'.index', function($breadcrumbs){
@@ -41,8 +43,8 @@ class AdminCatalogController extends Controller
 	 */
 	public function index()
 	{
-		$data['categories'] = Category::whereComponent('catalog')->whereLevel(0)->orderBy('position', 'DESC')->with(['get_child', 'get_parent'])->paginate(30);
-		$data['nalichie'] = Catalog::where('nalichie', '<', 1)->get();
+		$data['categories'] = Category::whereComponent('catalog')->whereLevel(1)->orderBy('position', 'DESC')->with(['get_child', 'get_parent'])->paginate(30);
+		$data['nalichie'] = $this->component->model::where('nalichie', '<', 1)->get();
 
 		return view('larrock::admin.catalog.index', $data);
 	}
@@ -79,7 +81,7 @@ class AdminCatalogController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		if($search_blank = Catalog::whereUrl('novyy-material')->first()){
+		if($search_blank = $this->component->model::whereUrl('novyy-material')->first()){
 			return redirect()->to('/admin/catalog/'. $search_blank->id. '/edit');
 		}
 
@@ -88,7 +90,7 @@ class AdminCatalogController extends Controller
             return back()->withInput($request->except('password'))->withErrors($validator);
         }
 
-		$data = new Catalog();
+		$data = new $this->component->model;
 		$data->fill($request->all());
         foreach ($this->config->rows as $row){
             if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
@@ -99,11 +101,10 @@ class AdminCatalogController extends Controller
             }
         }
 		$data->user_id = \Auth::getUser()->id;
-        //$data->articul = 'AR'. $request->input('id', Catalog::max('id'));
+        //$data->articul = 'AR'. $request->input('id', $this->component->model::max('id'));
 
 		if($data->save()){
-            $Component = new CatalogComponent();
-            $Component->actionAttach($this->config, $data, $request);
+            $this->component->actionAttach($this->config, $data, $request);
 
             /* Нужно для копирования элемента. Смотреть метод copy() */
 			if($request->has('images')){
@@ -131,7 +132,7 @@ class AdminCatalogController extends Controller
 	{
         $data['app_category'] = new CategoryComponent();
         $data['category'] = Category::whereId($id)->with(['get_child', 'get_parent'])->firstOrFail();
-        $data['data'] = Catalog::whereHas('get_category', function ($q) use ($id){
+        $data['data'] = $this->component->model::whereHas('get_category', function ($q) use ($id){
             $q->where('category.id', '=', $id);
         })->orderByDesc('position')->orderByDesc('updated_at')->paginate('50');
 
@@ -156,7 +157,7 @@ class AdminCatalogController extends Controller
 	 */
 	public function edit($id)
 	{
-        $data['data'] = Catalog::with(['get_category', 'getFiles', 'getImages'])->findOrFail($id);
+        $data['data'] = $this->component->model::with(['get_category', 'getFiles', 'getImages'])->findOrFail($id);
         $data['app'] = $this->config->tabbable($data['data']);
 
         $validator = JsValidator::make(Component::_valid_construct($this->config, 'update', $id));
@@ -189,7 +190,7 @@ class AdminCatalogController extends Controller
             return back()->withInput($request->except('password'))->withErrors($validator);
         }
 
-		$data = Catalog::find($id);
+        $data = $this->component->model::find($id);
 		$data->fill($request->all());
         foreach ($this->config->rows as $row){
             if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
@@ -208,8 +209,7 @@ class AdminCatalogController extends Controller
 		}
 
 		if($data->save()){
-            $Component = new CatalogComponent();
-            $Component->actionAttach($this->config, $data, $request);
+            $this->component->actionAttach($this->config, $data, $request);
 
             Alert::add('successAdmin', Lang::get('apps.update.success', ['name' => $request->input('title')]))->flash();
 			\Cache::flush();
@@ -228,12 +228,11 @@ class AdminCatalogController extends Controller
      */
 	public function destroy(Request $request, $id)
 	{
-		if($data = Catalog::find($id)){
+		if($data = $this->component->model::find($id)){
             $name = $data->title;
             $data->clearMediaCollection();
             if($data->delete()){
-                $Component = new CatalogComponent();
-                $Component->actionAttach($this->config, $data, $request);
+                $this->component->actionAttach($this->config, $data, $request);
 
                 Alert::add('successAdmin', Lang::get('apps.delete.success', ['name' => $name]))->flash();
                 \Cache::flush();
@@ -258,8 +257,8 @@ class AdminCatalogController extends Controller
      */
 	public function copy($id)
 	{
-		$search_id = Catalog::whereId($id)->with(['get_category', 'getImages', 'getFiles'])->first();
-		$search_id->url = str_slug($search_id->title) .'-'. Catalog::max('id');
+		$search_id = $this->component->model::whereId($id)->with(['get_category', 'getImages', 'getFiles'])->first();
+		$search_id->url = str_slug($search_id->title) .'-'. $this->component->model::max('id');
 		$add_data = $search_id->toArray();
 
         foreach ($this->config->rows as $row){
@@ -277,9 +276,7 @@ class AdminCatalogController extends Controller
 
     public function getTovar(Request $request)
     {
-        $Component = new CatalogComponent();
-        $Component->shareConfig();
-        if($get_tovar = Catalog::whereId($request->get('id'))->with(['get_category'])->first()){
+        if($get_tovar = $this->component->model::whereId($request->get('id'))->with(['get_category'])->first()){
             if($request->get('in_template') === 'true'){
                 $order = Cart::whereOrderId($request->get('order_id'))->first();
                 return view('admin.cart.getItem-modal', ['order' => $order, 'data' => $get_tovar]);
