@@ -2,16 +2,16 @@
 
 namespace Larrock\ComponentCatalog\Models;
 
+use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
-use Larrock\ComponentCategory\Models\Category;
 use Larrock\Core\Models\Seo;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
-use Larrock\ComponentCatalog;
+use Larrock\ComponentCatalog\Facades\LarrockCatalog;
 
 /**
  * App\Models\Catalog
@@ -167,7 +167,7 @@ class Catalog extends Model implements HasMediaConversions
 
 	public function get_category()
 	{
-		return $this->belongsToMany(Category::class, 'category_catalog', 'catalog_id', 'category_id');
+		return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id');
 	}
 
 	public function get_seo()
@@ -179,9 +179,9 @@ class Catalog extends Model implements HasMediaConversions
 	{
 		$full_url = Cache::remember('url_catalog'. $this->id, 1440, function() {
 			if($this->get_category->first()){
-				if($search_parent = Category::whereId($this->get_category->first()->parent)->first()){
-					if($search_parent_2 = Category::whereId($search_parent->parent)->first()){
-						if($search_parent_3 = Category::whereId($search_parent->parent_2)->first()){
+				if($search_parent = LarrockCategory::getModel()->whereId($this->get_category->first()->parent)->first()){
+					if($search_parent_2 = LarrockCategory::getModel()->whereId($search_parent->parent)->first()){
+						if($search_parent_3 = LarrockCategory::getModel()->whereId($search_parent->parent_2)->first()){
 							return '/catalog/'. $search_parent_3->url .'/'. $search_parent_2->url .'/' . $search_parent->url .'/'. $this->get_category->first()->url .'/'. $this->url;
 						}
                         return '/catalog/'. $search_parent_2->url .'/' . $search_parent->url .'/'. $this->get_category->first()->url .'/'. $this->url;
@@ -216,13 +216,11 @@ class Catalog extends Model implements HasMediaConversions
 
 	public function getImages()
 	{
-        $config = new ComponentCatalog\CatalogComponent();
-		return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', $config->model], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
+		return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
 	}
 	public function getFirstImage()
 	{
-        $config = new ComponentCatalog\CatalogComponent();
-		return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', $config->model], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
+		return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
 	}
 
 	public function getFirstImageAttribute()
@@ -238,8 +236,7 @@ class Catalog extends Model implements HasMediaConversions
 
     public function getFiles()
     {
-        $config = new ComponentCatalog\CatalogComponent();
-        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', $config->model], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
+        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
     }
 
 	public function getCutDescriptionAttribute()

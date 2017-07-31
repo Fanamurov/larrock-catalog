@@ -2,8 +2,10 @@
 
 namespace Larrock\ComponentCatalog;
 
+use Larrock\ComponentCatalog\Facades\LarrockCatalog;
 use Larrock\ComponentCatalog\Models\Catalog;
 use Larrock\ComponentCatalog\Models\Param;
+use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
@@ -28,6 +30,14 @@ class CatalogComponent extends Component
     {
         $this->addPluginImages()->addPluginFiles()->addPluginSeo();
         return $this;
+    }
+
+    public function getRows()
+    {
+        if(file_exists(base_path(). '/vendor/fanamurov/larrock-wizard')){
+            $this->mergeWizardConfig();
+        }
+        return $this->rows;
     }
 
     protected function addRows()
@@ -138,10 +148,10 @@ class CatalogComponent extends Component
 
     public function renderAdminMenu()
     {
-        $count = \Cache::remember('count-data-admin-'. $this->name, 1440, function(){
-            return Catalog::count(['id']);
+        $count = \Cache::remember('count-data-admin-'. LarrockCatalog::getName(), 1440, function(){
+            return LarrockCatalog::getModel()->count(['id']);
         });
-        $dropdown = Category::whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        $dropdown = LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
         $push = collect();
         if(in_array('Larrock\ComponentWizard\WizardComponent', get_declared_classes())){
             $push->put('Wizard - импорт товаров', '/admin/wizard');
@@ -149,12 +159,12 @@ class CatalogComponent extends Component
         if(in_array('Larrock\ComponentDiscount\DiscountComponent', get_declared_classes())){
             $push->put('Скидки', '/admin/discount');
         }
-        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => $this, 'url' => '/admin/'. $this->name, 'dropdown' => $dropdown, 'push' => $push]);
+        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockCatalog::getConfig(), 'url' => '/admin/'. LarrockCatalog::getName(), 'dropdown' => $dropdown, 'push' => $push]);
     }
 
     public function createSitemap()
     {
-        return $this->model::whereActive(1)->whereHas('get_category', function ($q){
+        return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q){
             $q->where('sitemap', '=', 1);
         })->get();
     }
