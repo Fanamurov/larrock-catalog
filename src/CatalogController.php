@@ -44,27 +44,13 @@ class CatalogController extends Controller
         $paginate = $request->cookie('perPage', 24);
         $sort_cost = $request->cookie('sort_cost');
 
-        $select_category = $category;
-        if($subcategory){
-            //Вложенный раздел: /Раздел/Подраздел
-            $select_category = $subcategory;
-            if($subsubcategory){
-                //Вложенный раздел: /Раздел/Подраздел/Подраздел
-                $select_category = $subsubcategory;
-                if($subsubsubcategory){
-                    //Вложенный раздел: /Раздел/Подраздел/Подраздел
-                    $select_category = $subsubsubcategory;
-                }
-            }
-        }
-
-        //Модуль списка разделов справа
-        $HelperCatalog = new HelperCatalog();
-        $module_listCatalog = $HelperCatalog->listCatalog($select_category);
+        $select_category = collect([$category, $subcategory, $subsubcategory, $subsubsubcategory])->filter(function ($value, $key){
+            return $value !== NULL;
+        })->last();
 
         if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
             //Это товар, а не раздел
-            return $this->getItem($request, $select_category, $module_listCatalog);
+            return $this->getItem($request, $select_category);
         }
 
         $get_category = LarrockCategory::getModel()->whereActive(1)->whereUrl($select_category)->with(['get_child'])->firstOrFail();
@@ -93,24 +79,26 @@ class CatalogController extends Controller
             });
 
             if($request->cookie('vid', config('larrock.catalog.defaults.categoriesView'), 'blocks') === 'table'){
-                return view(config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table'), [
-                    'data' => $get_category,
-                    'module_listCatalog' =>$module_listCatalog,
-                    'sort' => $this->addSort(),
-                    'filter' => $this->addFilters($request, $categories = [$get_category->id], $data = $get_category->get_tovarsActive())
-                ]);
+                $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
+            }else{
+                $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
             }
-            return view(config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3'), [
+
+            return view($view, [
                 'data' => $get_category,
-                'module_listCatalog' =>$module_listCatalog,
+                'module_listCatalog' => $this->listCatalog($select_category),
                 'sort' => $this->addSort(),
-                'filter' => $this->addFilters($request, $categories = [$get_category->id], $data = $get_category->get_tovarsActive())
+                'filter' => $this->addFilters($request, [$get_category->id], $get_category->get_tovarsActive())
             ]);
         }
 
-        return abort(404, 'Товаров не найдено');
+        return abort(404, 'Товаров в разделе "'. $get_category->title .'" не найдено');
     }
 
+    /**
+     * Добавление сортировок вверх/вниз
+     * @return array
+     */
     protected function addSort()
     {
         $sort = [];
@@ -201,38 +189,26 @@ class CatalogController extends Controller
 
     /**
      * Вывод на страницу товаров с подразделов
-     * @param Request     $request
-     * @param             $category
-     * @param null        $child
-     * @param null        $grandson
      *
-     * @return mixed
+     * @param Request $request
+     * @param $category
+     * @param null $subcategory
+     * @param null $subsubcategory
+     * @param null $subsubsubcategory
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getCategoryExpanded(Request $request, $category, $child = NULL, $grandson = NULL)
+    public function getCategoryExpanded(Request $request, $category, $subcategory = NULL, $subsubcategory = NULL, $subsubsubcategory = NULL)
     {
-        $HelperCatalog = new HelperCatalog();
-        //Cache::flush();
         $paginate = $request->cookie('perPage', 24);
         $sort_cost = $request->cookie('sort_cost');
 
-        //Смотрим какой раздел выбираем для работы
-        //Первый уровень: /Раздел
-        $select_category = $category;
-        if($child){
-            //Вложенный раздел: /Раздел/Подраздел
-            $select_category = $child;
-            if($grandson){
-                //Вложенный раздел: /Раздел/Подраздел/Подраздел
-                $select_category = $grandson;
-            }
-        }
-
-        //Модуль списка разделов справа
-        $data['module_listCatalog'] = $HelperCatalog->listCatalog($select_category);
+        $select_category = collect([$category, $subcategory, $subsubcategory, $subsubsubcategory])->filter(function ($value, $key){
+            return $value !== NULL;
+        })->last();
 
         if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
             //Это товар, а не раздел
-            return $this->getItem($select_category, $data['module_listCatalog']);
+            return $this->getItem($select_category);
         }
 
         $category_array = collect([]);
@@ -263,12 +239,9 @@ class CatalogController extends Controller
             //Ловим фильтры
             foreach(LarrockCatalog::getRows() as $config_key => $config_value){
                 if($config_value->filtered && $request->has($config_key)){
-                    $output->get_tovarsActive->whereIn($config_key, $request->get($config_key));
-                }
-            }
-
-            foreach(LarrockCatalog::getRows() as $config_key => $config_value){
-                if($config_value->filtered){
+                    if($request->has($config_key)){
+                        $output->get_tovarsActive->whereIn($config_key, $request->get($config_key));
+                    }
                     //Помещаем на вывод методы с доступными для дальнейшего выбора фильтры
                     $nameMethod = $config_key .'Allow';
                     $output->{$nameMethod} = $output->get_tovarsActive->select($config_key)->get();
@@ -290,12 +263,12 @@ class CatalogController extends Controller
         });
 
         if(count($data['data']->get_tovarsActive) === 0){
-            abort(404, 'Страница не найдена');
+            abort(404, 'Товаров в разделе не найдено');
         }
 
         if( !$data['data']){
             //Раздела с таким url нет, значит ищем товар
-            return $this->getItem($select_category, $data['module_listCatalog']);
+            return $this->getItem($select_category);
         }
 
         if($data['data']->level === 3 && !$grandson){
@@ -305,97 +278,12 @@ class CatalogController extends Controller
             return abort(404, 'Раздел каталога не найден');
         }
 
-        //Сканим возможные фильтры
-        Cache::forget('filters'. $select_category);
-        $data['filter'] = Cache::remember('filters'. $select_category, 1440, function() use ($data, $category_array, $request) {
-            $data['filter'] = [];
-            foreach(LarrockCatalog::getRows() as $key => $value){
-                if($value->filtered){
-                    //Фильтры из другой таблицы
-                    /*$table = $value['options_connect']['table'];
-                    $link_table = $value['options_connect']['table'].'_link';
-                    $link_name = $value['options_connect']['link_colomn_name'];
-
-                    //Собираем id разделов каталога для фильтров
-                    $category_list[] = $data['data']->id;
-                    foreach($data['data']->get_childActive as $child_value){
-                        $category_list[] = $child_value->id;
-                    }
-
-                    //Фильтры из другой таблицы
-                    $data['filter'][$key]['values'] = \DB::table('catalog')
-                        ->join($link_table, 'catalog.id', '=', 'catalog_id')
-                        ->join($table, $table. '.id', '=', $link_table. '.'. $link_name)
-                        ->join('category_catalog', 'category_catalog.catalog_id', '=', 'catalog.id')
-                        ->whereIn('category_catalog.category_id', array_flatten($category_list))
-                        ->groupBy([$table .'.title'])
-                        ->get([$table .'.title']);
-                    $data['filter'][$key]['name'] = $value['title'];
-
-                    $methodName = $key .'Allow';
-                    if(isset($data['data']->$methodName)){
-                        foreach($data['filter'][$key]['values'] as $key_value => $value_value){
-                            foreach($data['data']->$methodName as $allow_value){
-                                if($allow_value->title === $value_value->title){
-                                    $data['filter'][$key]['values'][$key_value]->allow = true;
-                                }
-                            }
-                        }
-                    }
-                    if(count($data['filter'][$key]['values']) === 1){
-                        $data['filter'][$key]['values'][0]->checked = true;
-                        $data['filter'][$key]['values'][0]->allow = NULL;
-                    }*/
-
-                    $data['filter'][$key]['values'] = LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($category_array, $request){
-                        $q->whereIn('category.id', $category_array);
-                    })->groupBy($key)->get([$key]);
-                    $data['filter'][$key]['name'] = $value['title'];
-
-                    $methodName = $key .'Allow';
-                    if(isset($data['data']->{$methodName})){
-                        foreach($data['filter'][$key]['values'] as $key_value => $value_value){
-                            foreach($data['data']->{$methodName} as $allow_value){
-                                if($allow_value->{$key} === $value_value->{$key}){
-                                    $data['filter'][$key]['values'][$key_value]->allow = true;
-                                }
-                            }
-                            if($request->has($key) && count($request->except(['sort', 'vid'])) === 1){
-                                $data['filter'][$key]['values'][$key_value]->allow = true;
-                            }
-                        }
-                    }
-                    if(count($data['filter'][$key]['values']) === 1){
-                        $data['filter'][$key]['values'][0]->checked = true;
-                        $data['filter'][$key]['values'][0]->allow = NULL;
-                    }
-                }
-            }
-            return $data['filter'];
-        });
-
-        $data['sort'] = [];
-        foreach(LarrockCatalog::getRows() as $key => $value) {
-            if ($value->sorted) {
-                $data['sort'][$key]['name'] = trim($value->title);
-                $data['sort'][$key]['values'] = ['1<span class="divider">→</span>9', 'Без сортировки', '9<span class="divider">→</span>1'];
-                $data['sort'][$key]['data'] = ['asc', 'none', 'desc'];
-            }
-        }
-
         Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
         {
-            //TODO: Переписать на parent_tree
-            //$breadcrumbs->parent('catalog.index');
-            if($data->parent &&
-                $get_parent = LarrockCategory::getModel()->whereComponent('catalog')->whereId($data->parent)->first()){
-                if($get_parent->level
-                    && $get_granddad = LarrockCategory::getModel()->whereType('catalog')->whereId($get_parent->parent)->first()){
-                    $breadcrumbs->push($get_granddad->title, '/');
-                }
-                $breadcrumbs->push($get_parent->title, $get_parent->full_url);
+            $breadcrumbs->push('Каталог', '/');
+            foreach ($data->parent_tree as $item){
+                $breadcrumbs->push($item->title, $item->full_url);
             }
-            $breadcrumbs->push($data->title);
         });
 
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
@@ -406,17 +294,24 @@ class CatalogController extends Controller
         }
 
         if($request->cookie('vid', config('larrock.catalog.defaults.categoriesView'), 'blocks') === 'table'){
-            return view(config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table'), $data);
+            $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
+        }else{
+            $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
         }
-        return view(config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3'), $data);
+
+        return view($view, [
+            'data' => $data['data'],
+            'module_listCatalog' => $this->listCatalog($select_category),
+            'sort' => $this->addSort(),
+            'filter' => $this->addFilters($request, $category_array, $data['data']->get_tovarsActive)
+        ]);
     }
 
     /**
      * @param $item
-     * @param $module_listCatalog
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getItem(Request $request, $item, $module_listCatalog)
+    public function getItem(Request $request, $item)
     {
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
@@ -426,36 +321,17 @@ class CatalogController extends Controller
             $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
         }
 
-        //Модуль с товарами из этого же раздела
-        /*$key = sha1('modincat_'. $data['data']->id .'_'. $item);
-        $data['module_in_category'] = Cache::remember($key, 1440, function() use ($data, $discountHelper) {
-            $data = Category::whereId($data['data']->get_category->first()->id)
-                ->with(['get_tovarsActive' => function($query) use ($data, $discountHelper){$query->orderByRaw('RAND()')->where('id', '!=', $data['data']->id)->take(6);}])->first();
-            foreach ($data->get_tovarsActive as $key => $item_mod){
-                $data->get_tovarsActive[$key] = $discountHelper->apply_discountsByTovar($item_mod);
-            }
-            return $data;
-        });*/
-
         Breadcrumbs::register('catalog.item', function($breadcrumbs, $data)
         {
             $breadcrumbs->parent('catalog.index');
-            $get_category = $data->get_category->first();
-            if($get_category->level !== 1){
-                $parent = $get_category->get_parent;
-                if($parent->level !== 1){
-                    $grandpa = $parent->get_parent;
-                    $breadcrumbs->push($grandpa->title, $parent->full_url);
-                }else{
-                    $breadcrumbs->push($parent->title, $parent->full_url);
-                }
+            foreach ($data->get_category->first()->parent_tree as $item){
+                $breadcrumbs->push($item->title, $item->full_url);
             }
-            $breadcrumbs->push($get_category->title, $get_category->full_url);
             $breadcrumbs->push($data->title);
         });
 
         //Модуль списка разделов справа
-        $data['module_listCatalog'] = $module_listCatalog;
+        $data['module_listCatalog'] = $this->listCatalog($data['data']->get_category->first()->url);
 
         if($data['data']->get_seo){
             $data['seo']['title'] = $data['data']->get_seo->title;
@@ -575,5 +451,28 @@ class CatalogController extends Controller
             return response()->json($get_tovar);
         }
         return response('Товар не найден', 404);
+    }
+
+    /**
+     * Данные для модуля выбора разделов каталога
+     *
+     * @param $category_url
+     * @return mixed
+     */
+    public function listCatalog($category_url)
+    {
+        $data = Cache::remember('list_catalog'. $category_url, 1440, function() use ($category_url) {
+            if($data['current'] = Category::whereUrl($category_url)->first()){
+                $data['current_level'] = Category::whereParent($data['current']->parent)->get();
+                $data['next_level'] = Category::whereParent($data['current']->id)->get();
+                if($data['current']->parent){
+                    $data['current'] = Category::whereId($data['current']->parent)->first();
+                    $data['next_level'] = $data['current_level'];
+                    $data['current_level'] = Category::whereParent($data['current']->parent)->get();
+                }
+            }
+            return $data;
+        });
+        return $data;
     }
 }
