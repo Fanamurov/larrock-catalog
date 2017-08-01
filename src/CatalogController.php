@@ -32,7 +32,7 @@ class CatalogController extends Controller
     public function getCategoryRoot()
     {
         $data = Cache::remember('getTovars_root', 1440, function(){
-            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereComponent('catalog')->orderBy('position', 'DESC')->get();
+            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')->orderBy('position', 'DESC')->get();
             return $data;
         });
 
@@ -67,7 +67,7 @@ class CatalogController extends Controller
             return $this->getItem($request, $select_category, $module_listCatalog);
         }
 
-        $get_category = LarrockCategory::getModel()->whereUrl($select_category)->with(['get_child'])->first();
+        $get_category = LarrockCategory::getModel()->whereActive(1)->whereUrl($select_category)->with(['get_child'])->firstOrFail();
         $get_category->get_tovarsActive = $get_category->get_tovarsActive()->paginate($paginate);
 
         if(count($get_category->get_child)> 0){
@@ -92,7 +92,15 @@ class CatalogController extends Controller
                 }
             });
 
-            return view('larrock::front.catalog.items-4-3', [
+            if($request->cookie('vid', config('larrock.catalog.defaults.categoriesView'), 'blocks') === 'table'){
+                return view(config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table'), [
+                    'data' => $get_category,
+                    'module_listCatalog' =>$module_listCatalog,
+                    'sort' => $this->addSort(),
+                    'filter' => $this->addFilters($request, $categories = [$get_category->id], $data = $get_category->get_tovarsActive())
+                ]);
+            }
+            return view(config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3'), [
                 'data' => $get_category,
                 'module_listCatalog' =>$module_listCatalog,
                 'sort' => $this->addSort(),
@@ -397,10 +405,10 @@ class CatalogController extends Controller
             }
         }
 
-        if($request->cookie('vid') === 'table'){
-            return view('larrock::front.catalog.items-table', $data);
+        if($request->cookie('vid', config('larrock.catalog.defaults.categoriesView'), 'blocks') === 'table'){
+            return view(config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table'), $data);
         }
-        return view('larrock::front.catalog.items-4-3', $data);
+        return view(config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3'), $data);
     }
 
     /**
@@ -412,10 +420,10 @@ class CatalogController extends Controller
     {
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
-            $data['data'] = LarrockCatalog::getModel()->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
+            $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
             $data['data'] = $discountHelper->apply_discountsByTovar($data['data']);
         }else{
-            $data['data'] = LarrockCatalog::getModel()->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
+            $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
         }
 
         //Модуль с товарами из этого же раздела
@@ -556,7 +564,7 @@ class CatalogController extends Controller
      */
     public function getTovar(Request $request)
     {
-        if($get_tovar = LarrockCatalog::getModel()->whereId($request->get('id', 33))->with(['get_category'])->first()){
+        if($get_tovar = LarrockCatalog::getModel()->whereActive(1)->whereId($request->get('id', 33))->with(['get_category'])->first()){
             if(file_exists(base_path(). '/vendor/fanamurov/larrock-discount')){
                 $discountHelper = new DiscountHelper();
                 $get_tovar = $discountHelper->apply_discountsByTovar($get_tovar);

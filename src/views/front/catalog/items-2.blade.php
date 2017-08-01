@@ -6,6 +6,21 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
 @section('content')
     {!! Breadcrumbs::render('catalog.items', $data) !!}
 
+    <div class="catalog-filters uk-flex">
+        @if(config('larrock.catalog.modules.sortCost', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.sortCost')
+        @endif
+        @if(config('larrock.catalog.modules.lilu', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.lilu')
+        @endif
+        @if(config('larrock.catalog.modules.itemsOnPage', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.itemsOnPage')
+        @endif
+        @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.vid')
+        @endif
+    </div>
+
     <div class="catalogPageCategoryItems row">
         @each('larrock::front.catalog.blockItem', $data->get_tovarsActive, 'data')
     </div>

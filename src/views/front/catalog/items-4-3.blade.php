@@ -13,10 +13,18 @@
     {!! Breadcrumbs::render('catalog.category', $data) !!}
 
     <div class="catalog-filters uk-flex">
-        @include('larrock::front.modules.filters.sortCost')
-        @include('larrock::front.modules.filters.itemsOnPage')
-        @include('larrock::front.modules.filters.vid')
-        @include('larrock::front.modules.filters.lilu')
+        @if(config('larrock.catalog.modules.sortCost', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.sortCost')
+        @endif
+        @if(config('larrock.catalog.modules.lilu', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.lilu')
+        @endif
+        @if(config('larrock.catalog.modules.itemsOnPage', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.itemsOnPage')
+        @endif
+        @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.vid')
+        @endif
     </div>
 
     <div class="catalogPageCategoryItems uk-grid uk-margin-large-top uk-margin-large-bottom">

@@ -111,13 +111,12 @@ class Catalog extends Model implements HasMediaConversions
      */
     public function __construct(array $attributes = [])
     {
-        $columns = \Schema::getColumnListing('catalog');
-        $hide_columns = ['id', 'user_id', 'created_at', 'updated_at'];
-        foreach ($columns as $key => $value){
-            if(in_array($value, $hide_columns, TRUE)){
-                unset($columns[$key]);
-            }
-        }
+        $columns = Cache::remember('fillableCatalog', 1440, function(){
+            $columns = \Schema::getColumnListing('catalog');
+            $columns = collect($columns)->except(['id', 'user_id', 'created_at', 'updated_at']);
+            return $columns->toArray();
+        });
+
         $this->fillable($columns);
 
         $this->bootIfNotBooted();
