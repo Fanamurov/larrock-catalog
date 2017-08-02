@@ -176,22 +176,14 @@ class Catalog extends Model implements HasMediaConversions
 
 	public function getFullUrlAttribute()
 	{
-		$full_url = Cache::remember('url_catalog'. $this->id, 1440, function() {
-			if($this->get_category->first()){
-				if($search_parent = LarrockCategory::getModel()->whereId($this->get_category->first()->parent)->first()){
-					if($search_parent_2 = LarrockCategory::getModel()->whereId($search_parent->parent)->first()){
-						if($search_parent_3 = LarrockCategory::getModel()->whereId($search_parent->parent_2)->first()){
-							return '/catalog/'. $search_parent_3->url .'/'. $search_parent_2->url .'/' . $search_parent->url .'/'. $this->get_category->first()->url .'/'. $this->url;
-						}
-                        return '/catalog/'. $search_parent_2->url .'/' . $search_parent->url .'/'. $this->get_category->first()->url .'/'. $this->url;
-					}
-                    return '/catalog/' . $search_parent->url .'/'. $this->get_category->first()->url .'/'. $this->url;
-				}
-                return '/catalog/'. $this->get_category->first()->url .'/'. $this->url;
-			}
-            return '/catalog/'. $this->url;
+        return Cache::remember('url_catalog'. $this->id, 1440, function() {
+            $url = '/catalog';
+            foreach ($this->get_category()->first()->parent_tree as $category){
+                $url .= '/'. $category->url;
+            }
+            $url .= '/'. $this->url;
+            return $url;
 		});
-		return $full_url;
 	}
 
 	public function getFullUrlCategoryAttribute()
@@ -251,24 +243,6 @@ class Catalog extends Model implements HasMediaConversions
         $discountHelper = new DiscountHelper();
         return $discountHelper->getCostDiscount($this);
     }
-
-    /*public function getSizesAttribute()
-    {
-        $value = '';
-        $sizes = $this->get_sizes;
-        return Cache::remember('getSizesAttribute'. $this->id, 1440, function() use ($sizes, $value) {
-            if($sizes){
-                $count = count($sizes)-1;
-                foreach($sizes as $key => $value_arr){
-                    $value .= $value_arr->title;
-                    if($key !== $count){
-                        $value .= ', ';
-                    }
-                }
-            }
-            return $value;
-        });
-    }*/
 
     public function get_param()
     {

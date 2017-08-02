@@ -39,14 +39,12 @@ class CatalogController extends Controller
         return view('larrock::front.catalog.categories', $data);
     }
 
-    public function getCategory(Request $request, $category, $subcategory = NULL, $subsubcategory = NULL, $subsubsubcategory = NULL)
+    public function getCategory(Request $request, $category)
     {
         $paginate = $request->cookie('perPage', 24);
         $sort_cost = $request->cookie('sort_cost');
 
-        $select_category = collect([$category, $subcategory, $subsubcategory, $subsubsubcategory])->filter(function ($value, $key){
-            return $value !== NULL;
-        })->last();
+        $select_category = last(\Route::current()->parameters());
 
         if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
             //Это товар, а не раздел
@@ -197,14 +195,12 @@ class CatalogController extends Controller
      * @param null $subsubsubcategory
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getCategoryExpanded(Request $request, $category, $subcategory = NULL, $subsubcategory = NULL, $subsubsubcategory = NULL)
+    public function getCategoryExpanded(Request $request, $category)
     {
         $paginate = $request->cookie('perPage', 24);
         $sort_cost = $request->cookie('sort_cost');
 
-        $select_category = collect([$category, $subcategory, $subsubcategory, $subsubsubcategory])->filter(function ($value, $key){
-            return $value !== NULL;
-        })->last();
+        $select_category = last(\Route::current()->parameters());
 
         if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
             //Это товар, а не раздел

@@ -31,11 +31,6 @@ Route::group(['middleware' => $middlewares], function(){
     Route::get('/catalog/{category}', [
         'as' => 'catalog.category', 'uses' => CatalogController::class .'@getCategoryExpanded'
     ]);
-    /*
-    //OR:
-    Route::get('/catalog/{category}/{subcategory?}/{subsubcategory?}/{subsubsubcategory?}', [
-        'as' => 'catalog.category', 'uses' => '\Larrock\ComponentCatalog\CatalogController@getCategory'
-    ]);*/
 
     Route::any('/search/catalog/serp/{words?}', [
         'as' => 'search.catalog', 'uses' => CatalogController::class .'@searchResult'

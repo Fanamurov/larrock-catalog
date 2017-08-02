@@ -58,6 +58,26 @@ return [
     ]
 ];
 ```
+Change other config
+```php
+'catalog' => [
+        'templates' => [
+            'categoriesTable' => 'larrock::front.catalog.items-table',
+            'categoriesBlocks' => 'larrock::front.catalog.items-4-3',
+        ],
+
+        'defaults' => [
+            'categoriesView' => 'table'
+        ],
+
+        'modules' => [
+            'sortCost' => TRUE,
+            'lilu' => TRUE,
+            'vid' => TRUE,
+            'itemsOnPage' => TRUE,
+        ]
+    ]
+```
 
 Create App\Components\CatalogComponent and extends \Larrock\ComponentCatalog\CatalogComponent
 
