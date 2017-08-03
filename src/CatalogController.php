@@ -424,8 +424,8 @@ class CatalogController extends Controller
     public function vid(Request $request)
     {
         $response = new Response('vid');
-        $response->withCookie(cookie('vid', $request->get('q', 'cards'), 45000));
-        Session::flash('vid', $request->get('q', 'cards'));
+        $response->withCookie(cookie('vid', $request->get('q', 'blocks'), 45000));
+        Session::flash('vid', $request->get('q', 'blocks'));
         return $response;
     }
 
@@ -458,13 +458,13 @@ class CatalogController extends Controller
     public function listCatalog($category_url)
     {
         $data = Cache::remember('list_catalog'. $category_url, 1440, function() use ($category_url) {
-            if($data['current'] = Category::whereUrl($category_url)->first()){
-                $data['current_level'] = Category::whereParent($data['current']->parent)->get();
-                $data['next_level'] = Category::whereParent($data['current']->id)->get();
+            if($data['current'] = LarrockCategory::getModel()->whereUrl($category_url)->whereActive(1)->first()){
+                $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereActive(1)->get();
+                $data['next_level'] = LarrockCategory::getModel()->whereParent($data['current']->id)->whereActive(1)->get();
                 if($data['current']->parent){
-                    $data['current'] = Category::whereId($data['current']->parent)->first();
+                    $data['current'] = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first();
                     $data['next_level'] = $data['current_level'];
-                    $data['current_level'] = Category::whereParent($data['current']->parent)->get();
+                    $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereActive(1)->get();
                 }
             }
             return $data;
