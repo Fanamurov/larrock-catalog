@@ -1,4 +1,4 @@
-<div class="catalogBlockItem uk-width-1-2 uk-width-small-1-3 uk-width-medium-1-4 uk-width-xlarge-1-4 uk-margin-large-bottom" id="product_{{ $data->id }}">
+<div class="catalogBlockItem uk-width-1-2 uk-width-small-1-3 uk-width-medium-1-4 uk-width-xlarge-1-4 uk-margin-large-bottom uk-position-relative" id="product_{{ $data->id }}">
     @level(2)
         <a class="admin_edit" href="/admin/catalog/{{ $data->id }}/edit">Edit element</a>
     @endlevel

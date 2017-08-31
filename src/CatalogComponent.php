@@ -153,10 +153,10 @@ class CatalogComponent extends Component
         });
         $dropdown = LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
         $push = collect();
-        if(in_array('Larrock\ComponentWizard\WizardComponent', get_declared_classes())){
+        if(file_exists(base_path(). '/vendor/fanamurov/larrock-wizard')){
             $push->put('Wizard - импорт товаров', '/admin/wizard');
         }
-        if(in_array('Larrock\ComponentDiscount\DiscountComponent', get_declared_classes())){
+        if(file_exists(base_path(). '/vendor/fanamurov/larrock-discont')){
             $push->put('Скидки', '/admin/discount');
         }
         return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockCatalog::getConfig(), 'url' => '/admin/'. LarrockCatalog::getName(), 'dropdown' => $dropdown, 'push' => $push]);

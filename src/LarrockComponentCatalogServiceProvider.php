@@ -3,6 +3,7 @@
 namespace Larrock\ComponentCatalog;
 
 use Illuminate\Support\ServiceProvider;
+use Larrock\ComponentCatalog\Middleware\CatalogSearch;
 
 class LarrockComponentCatalogServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,8 @@ class LarrockComponentCatalogServiceProvider extends ServiceProvider
             $class = config('larrock.components.catalog', CatalogComponent::class);
             return new $class;
         });
+
+        $this->app['router']->aliasMiddleware('CatalogSearch', CatalogSearch::class);
 
         $timestamp = date('Y_m_d_His', time());
         $timestamp_after = date('Y_m_d_His', time()+10);
