@@ -36,6 +36,10 @@ class CatalogController extends Controller
             return $data;
         });
 
+        if(count($data['data']) === 0){
+            return abort(404, 'Catalog categories not found');
+        }
+
         return view('larrock::front.catalog.categories', $data);
     }
 
