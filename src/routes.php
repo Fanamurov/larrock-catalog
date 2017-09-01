@@ -28,7 +28,8 @@ Route::group(['middleware' => $middlewares], function(){
     Route::get('/catalog/all', [
         'as' => 'catalog.all', 'uses' => CatalogController::class .'@getAllTovars'
     ]);
-    Route::get('/catalog/{category}', [
+
+    Route::get('/catalog/{category}/{category2?}/{category3?}/{category4?}', [
         'as' => 'catalog.category', 'uses' => CatalogController::class .'@getCategoryExpanded'
     ]);
 

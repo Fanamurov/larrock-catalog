@@ -271,13 +271,6 @@ class CatalogController extends Controller
             return $this->getItem($select_category);
         }
 
-        if($data['data']->level === 3 && !$grandson){
-            return abort(404, 'Раздел каталога не найден');
-        }
-        if($data['data']->level === 2 && !$child){
-            return abort(404, 'Раздел каталога не найден');
-        }
-
         Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
         {
             $breadcrumbs->push('Каталог', '/');
