@@ -24,7 +24,7 @@ class AdminCatalogController extends Controller
 	{
         $this->config = LarrockCatalog::shareConfig();
 
-        Breadcrumbs::setView('larrock::admin.breadcrumb.breadcrumb');
+        \Config::set('breadcrumbs.view', 'larrock::admin.breadcrumb.breadcrumb');
 		Breadcrumbs::register('admin.'. LarrockCatalog::getName() .'.index', function($breadcrumbs){
 			$breadcrumbs->push(LarrockCatalog::getTitle(), route('admin.catalog.index'));
 		});
