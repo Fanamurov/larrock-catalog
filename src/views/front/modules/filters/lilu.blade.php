@@ -30,7 +30,7 @@
             </div>
         @endif
     @endforeach
-    @if(count(Request::all()) > 0)
+    @if(count(Request::all()) > 0 && !Request::has('page'))
         <div id="clear_filter"><a href="{{ URL::current() }}" class="uk-button">Сбросить фильтры</a></div>
     @endif
 </form>

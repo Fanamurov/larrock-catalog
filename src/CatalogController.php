@@ -208,7 +208,7 @@ class CatalogController extends Controller
 
         if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
             //Это товар, а не раздел
-            return $this->getItem($select_category);
+            return $this->getItem($request, $select_category);
         }
 
         $category_array = collect([]);

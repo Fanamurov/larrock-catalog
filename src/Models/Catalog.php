@@ -118,11 +118,8 @@ class Catalog extends Model implements HasMediaConversions
         });
 
         $this->fillable($columns);
-
         $this->bootIfNotBooted();
-
         $this->syncOriginal();
-
         $this->fill($attributes);
     }
 
@@ -171,7 +168,7 @@ class Catalog extends Model implements HasMediaConversions
 
 	public function get_seo()
 	{
-		return $this->hasOne(Seo::class, 'seo_id_connect', 'id')->whereTypeConnect('catalog');
+		return $this->hasOne(Seo::class, 'seo_id_connect', 'id')->whereSeoTypeConnect('catalog');
 	}
 
 	public function getFullUrlAttribute()
@@ -197,7 +194,6 @@ class Catalog extends Model implements HasMediaConversions
 	public function getUrlToSearchAttribute()
 	{
 		return '/search/catalog/serp/'. \Request::get('q');
-		
 	}
 
 	public function getClassElementAttribute()

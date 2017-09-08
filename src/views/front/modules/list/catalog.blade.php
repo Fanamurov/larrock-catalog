@@ -2,20 +2,22 @@
     <ul class="uk-nav uk-nav-parent-icon uk-nav-side block-listCatalog" data-uk-nav="{multiple:true}">
         @if(count($module_listCatalog['next_level']) > 0)
             <li class="current-level">
-                <span>{{ $module_listCatalog['current']->title }}</span>
-                <div class="uk-button-dropdown uk-float-right" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="false">
-                    <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
-                    <div class="uk-dropdown" aria-hidden="true">
-                        <ul class="uk-nav uk-nav-dropdown">
-                            @foreach($module_listCatalog['current_level'] as $value)
-                                <li @if(URL::current() === 'http://'.$_SERVER['SERVER_NAME'] . $value->full_url
-                        || $value->full_url === $module_listCatalog['current']->full_url) class="uk-active" @endif>
-                                    <a href="{{ $value->full_url }}">{{ $value->title }}</a>
-                                </li>
-                            @endforeach
-                        </ul>
+                <span @if(count($module_listCatalog['current_level'] ) > 1) class="with-dropdown" @endif>{{ $module_listCatalog['current']->title }}</span>
+                @if(count($module_listCatalog['current_level'] ) > 1)
+                    <div class="uk-button-dropdown uk-float-right" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="false">
+                        <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
+                        <div class="uk-dropdown" aria-hidden="true">
+                            <ul class="uk-nav uk-nav-dropdown">
+                                @foreach($module_listCatalog['current_level'] as $value)
+                                    <li @if(URL::current() === 'http://'.$_SERVER['SERVER_NAME'] . $value->full_url
+                            || $value->full_url === $module_listCatalog['current']->full_url) class="uk-active" @endif>
+                                        <a href="{{ $value->full_url }}">{{ $value->title }}</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                @endif
             </li>
 
             @foreach($module_listCatalog['next_level'] as $item)

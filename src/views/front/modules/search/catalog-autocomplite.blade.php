@@ -3,7 +3,7 @@
         <select name="query" class="uk-width-1-1 uk-form-large" id="search_site">
             <option value="@yield('title_search')">@yield('title_search')</option>
         </select>
-        <button class="uk-button uk-button-large uk-button-primary" type="submit">Поиск по каталогу <i class="uk-icon-search"></i></button>
+        <button class="uk-button uk-button-large uk-button-primary" type="submit"><i class="uk-icon-search"></i></button>
         {{ csrf_field() }}
     </div>
 </form>
@@ -27,7 +27,7 @@
                 field: 'title',
                 direction: 'asc'
             },
-            placeholder: 'Начните вводить название нужной детали и мы ее найдем!',
+            placeholder: 'Поиск по каталогу',
             options: [
                 @foreach($catalogSearch as $item)
                 {title: '{{ $item['title'] }}', id: {{ $item['id'] }}, category: '{{ $item['category'] }}'},
@@ -36,14 +36,14 @@
             render: {
                 item: function(item, escape) {
                     return '<div>' +
-                        (item.title ? '<span class="title">' + escape(item.title) + '</span>' : '') +
-                        (item.category ? '<span class="category">/' + escape(item.category) + '</span>' : '') +
+                        (item.title ? '<span class="title">' + escape(item.title.replace('&quot;', '').replace('&quot;', '')) + '</span>' : '') +
+                        (item.category ? '<span class="category">/' + escape(item.category.replace('&quot;', '').replace('&quot;', '')) + '</span>' : '') +
                         '</div>';
                 },
                 option: function(item, escape) {
                     return '<div>' +
-                        '<span class="uk-label">' + escape(item.title) + '</span>' +
-                        '<span class="caption">в разделе: ' + escape(item.category) + '</span>' +
+                        '<span class="uk-label">' + escape(item.title.replace('&quot;', '').replace('&quot;', '')) + '</span>' +
+                        '<span class="caption">в разделе: ' + escape(item.category.replace('&quot;', '').replace('&quot;', '')) + '</span>' +
                         '</div>';
                 }
             }
