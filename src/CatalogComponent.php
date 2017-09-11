@@ -58,7 +58,7 @@ class CatalogComponent extends Component
         $this->rows['description'] = $row->setTypo();
 
         $row = new FormInput('cost', 'Цена');
-        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setInTableAdminAjaxEditable();
+        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setInTableAdminAjaxEditable()->setSorted();
 
         $row = new FormInput('cost_old', 'Старая цена');
         $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
