@@ -6,10 +6,18 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
     {!! Breadcrumbs::render('catalog.category', $data) !!}
 
     <div class="catalog-filters uk-margin-top">
-        @include('larrock::front.modules.filters.sortCost')
-        @include('larrock::front.modules.filters.vid')
-        @include('larrock::front.modules.filters.itemsOnPage')
-        @include('larrock::front.modules.filters.lilu')
+        @if(config('larrock.catalog.modules.sortCost', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.sortCost')
+        @endif
+        @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.vid')
+        @endif
+        @if(config('larrock.catalog.modules.itemsOnPage', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.itemsOnPage')
+        @endif
+        @if(config('larrock.catalog.modules.lilu', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.lilu')
+        @endif
     </div>
 
     <div class="catalogPageCategoryItems row">
@@ -18,10 +26,6 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
             <tr>
                 <th></th>
                 <th>Наименование</th>
-                <th>Хаб</th>
-                <th>Бел</th>
-                <th>Нов</th>
-                <th>СПб</th>
                 <th>Цена</th>
                 @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
                     <th style="width: 40px"></th>
@@ -33,37 +37,9 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
                 <tr>
                     <td><img src="{{ $item->first_image }}" alt="{{ $item->title }}"></td>
                     <td>{{ $item->title }}</td>
-                    <td>
-                        @if($item->khabarovsk)
-                            <i class="uk-icon-check"></i>
-                        @else
-                            <i class="uk-icon-close"></i>
-                        @endif
-                    </td>
-                    <td>
-                        @if($item->belgorod)
-                            <i class="uk-icon-check"></i>
-                        @else
-                            <i class="uk-icon-close"></i>
-                        @endif
-                    </td>
-                    <td>
-                        @if($item->novosibirsk)
-                            <i class="uk-icon-check"></i>
-                        @else
-                            <i class="uk-icon-close"></i>
-                        @endif
-                    </td>
-                    <td>
-                        @if($item->s_peterburg)
-                            <i class="uk-icon-check"></i>
-                        @else
-                            <i class="uk-icon-close"></i>
-                        @endif
-                    </td>
-                    <td class="nowrap">{{ $item->cost }} <small>руб./{{ $item->what }}</small></td>
+                    <td class="nowrap">{{ $item->cost }} <small>{{ $item->what }}</small></td>
                     @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
-                        <td><img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
+                        <td><img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart_fast pointer"
                                  width="40" height="25" data-id="{{ $item->id }}"></td>
                     @endif
                 </tr>

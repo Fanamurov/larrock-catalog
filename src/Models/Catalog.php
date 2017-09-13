@@ -121,6 +121,7 @@ class Catalog extends Model implements HasMediaConversions
         $this->bootIfNotBooted();
         $this->syncOriginal();
         $this->fill($attributes);
+        $this->table = LarrockCatalog::getConfig()->table;
     }
 
     public function registerMediaConversions(Media $media = null)
@@ -142,8 +143,6 @@ class Catalog extends Model implements HasMediaConversions
 			'catalog.title' => 10
 		]
 	];
-
-    protected $table = 'catalog';
 
 	protected $casts = [
 		'position' => 'integer',

@@ -5,47 +5,17 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
 @section('content')
     {!! Breadcrumbs::render('catalog.item', $data) !!}
 
-    <div class="catalogPageItem row">
-        <h1>{{ $data->title }}</h1>
-        <div class="row">
-            <div class="col-xs-12">
+    <div class="catalogPageItem uk-margin-large-top" itemscope itemtype="http://schema.org/Product">
+        <div class="uk-grid">
+            <div class="uk-width-1-1 uk-width-medium-1-2 uk-width-large-1-3">
                 <div class="catalogImage">
-                    @if(count($data->images) > 0)
-                        <img src="{{ $data->images->first()->getUrl() }}" alt="{{ $data->title }}" class="TovarImage">
-                    @endif
-                    <div class="cost">
-                        @if($data->cost == 0)
-                            <span class="empty-cost">цена договорная</span>
-                        @else
-                            <span class="default-cost">&nbsp;&nbsp;&nbsp;&nbsp;{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
-                        @endif
-                    </div>
+                    <img src="{{ $data->first_image }}" class="catalogImage all-width" itemprop="image">
                 </div>
             </div>
-            <div class="col-xs-12">
-                @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
-                    <div class="form-addToCart">
-                        <div class="input-group">
-                            <span class="input-group-addon addon-x">X</span>
-                            <input type="text" class="form-control kolvo" id="kolvo-{{ $data->id }}" name="kolvo" value="{{ $data->min_part*1000 }}">
-                            <span class="input-group-addon addon-what">кг</span>
-                            <div class="input-group-btn">
-                                <span class="btn btn-info pull-right">
-                                    <img src="/_assets/_front/_images/icons/icon_cart_white.png"
-                                         alt="Добавить в корзину" class="submit_to_cart pointer"
-                                         data-id="{{ $data->id }}" width="32" height="32">
-                                </span>
-                            </div>
-                        </div>
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    </div>
-                @endif
-            </div>
-        </div>
-        <div class="row row-description">
-            <div class="col-xs-12">
-                <div class="catalogFull">
-                    <div>{!! $data->description !!}</div>
+            <div class="uk-width-1-1 uk-width-medium-1-2 uk-width-large-2-3">
+                <h1 itemprop="name">{{ $data->title }}</h1>
+                <div class="catalog-description">
+                    <div class="default-description" itemprop="description">{!! $data->description !!}</div>
                     <div class="catalog-descriptions-rows">
                         @foreach($app->rows as $row_key => $row)
                             @if($row->template === 'description' && isset($data->{$row_key}) && !empty($data->{$row_key}))
@@ -54,14 +24,23 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
                         @endforeach
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-12 other-photos">
-                @if(count($data->images) > 1)
-                    @foreach($data->images as $image)
-                        @if($image->id !== $data->images->first()->id)
-                            <div class="other-photos-bg" style="background-image: url('{!! $image->getUrl() !!}')"></div>
-                        @endif
-                    @endforeach
+                <div class="cost" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                    @if($data->cost == 0)
+                        <span class="empty-cost" itemprop="price">цена договорная</span>
+                        <meta itemprop="price" content="под заказ">
+                        <meta itemprop="priceCurrency" content="RUB">
+                        <link itemprop="availability" href="http://schema.org/PreOrder">
+                    @else
+                        Цена: <span class="default-cost" itemprop="price">{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
+                        <meta itemprop="price" content="{{ $data->cost }}">
+                        <meta itemprop="priceCurrency" content="RUB">
+                        <link itemprop="availability" href="http://schema.org/InStock">
+                    @endif
+                </div>
+                @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
+                    <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast" data-id="{{ $data->id }}">
+                        Добавить в корзину
+                    </div>
                 @endif
             </div>
         </div>
@@ -71,23 +50,3 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
 @section('front.modules.list.catalog')
     @include('larrock::front.modules.list.catalog')
 @endsection
-
-@push('scripts')
-    <script src="/_assets/bower_components/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="/_assets/bower_components/jquery-validation/dist/additional-methods.min.js"></script>
-    <script>
-        $( ".form-addToCart" ).validate({
-            rules: {
-                kolvo: {
-                    required: true,
-                    min: {{ $data->min_part*1000 }}
-                }
-            },
-            messages: {
-                kolvo: {
-                    min: "Минимальная партия для заказа {{ $data->min_part*1000 }}",
-                }
-            }
-        });
-    </script>
-@endpush

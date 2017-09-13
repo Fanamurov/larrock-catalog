@@ -4,6 +4,7 @@ namespace Larrock\ComponentCatalog;
 
 use Illuminate\Support\ServiceProvider;
 use Larrock\ComponentCatalog\Middleware\CatalogSearch;
+use Larrock\ComponentCatalog\Middleware\RandomCatalogItems;
 
 class LarrockComponentCatalogServiceProvider extends ServiceProvider
 {
@@ -36,6 +37,7 @@ class LarrockComponentCatalogServiceProvider extends ServiceProvider
         });
 
         $this->app['router']->aliasMiddleware('CatalogSearch', CatalogSearch::class);
+        $this->app['router']->aliasMiddleware('RandomCatalogItems', RandomCatalogItems::class);
 
         $timestamp = date('Y_m_d_His', time());
         $timestamp_after = date('Y_m_d_His', time()+10);

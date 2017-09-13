@@ -3,9 +3,9 @@
         <div class="module-filter-{{ $sort_key }} module-filter nowrap">
             <span class="label">{{ $sort_value['name'] }}:</span>
             @foreach($sort_value['values'] as $v_key => $value)
-                <span class="change_sort_{{ $sort_key }} uk-link
+                <span class="change_option_ajax change_sort_{{ $sort_key }} uk-link
                     @if(Cookie::get('sort_'. $sort_key, 'none') === $sort_value['data'][$v_key]) uk-active @endif"
-                      data-value="{{ $sort_value['data'][$v_key] }}" data-type="{{ $sort_key }}">{!! $value !!}</span>
+                      data-value="{{ $sort_value['data'][$v_key] }}" data-type="{{ $sort_key }}" data-option="sort">{!! $value !!}</span>
             @endforeach
         </div>
     @endif

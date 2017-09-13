@@ -1,4 +1,4 @@
-<form action="" method="get" class="catalog-filters" id="block_sorters">
+<form action="" method="get" class="catalog-filters module-filter" id="block_sorters">
     @foreach($filter as $filter_key => $filter_value)
         @if(count($filter_value['values']) > 1)
             <div class="uk-button-dropdown nowrap" data-uk-dropdown="">
@@ -34,4 +34,3 @@
         <div id="clear_filter"><a href="{{ URL::current() }}" class="uk-button">Сбросить фильтры</a></div>
     @endif
 </form>
-<div class="uk-clearfix"></div>

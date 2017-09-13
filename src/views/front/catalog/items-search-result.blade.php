@@ -5,8 +5,12 @@
     {!! Breadcrumbs::render('catalog.search') !!}
 
     <div class="catalog-filters">
-        @include('larrock::front.modules.filters.vid')
-        @include('larrock::front.modules.filters.itemsOnPage')
+        @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.vid')
+        @endif
+        @if(config('larrock.catalog.modules.itemsOnPage', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.itemsOnPage')
+        @endif
     </div>
 
     <div class="uk-grid uk-grid-medium uk-grid-match uk-margin-large-top">

@@ -1,35 +1,39 @@
-<div class="catalogBlockItem uk-width-1-2 uk-width-small-1-3 uk-width-medium-1-4 uk-width-xlarge-1-4 uk-margin-large-bottom uk-position-relative" id="product_{{ $data->id }}">
+<div class="catalogBlockItem uk-width-1-2 uk-width-small-1-3 uk-width-medium-1-4 uk-width-xlarge-1-4 uk-margin-large-bottom uk-position-relative"
+     id="product_{{ $data->id }}" itemscope itemtype="http://schema.org/Product">
     @level(2)
         <a class="admin_edit" href="/admin/catalog/{{ $data->id }}/edit">Edit element</a>
     @endlevel
-    <div class="catalogImage link_block_this111" data-href="{!! URL::current() !!}/{{ $data->url }}">
-        <img src="{{ $data->first_image }}" class="catalogImage max-width @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart')) action_add_to_cart @endif pointer" data-id="{{ $data->id }}">
+    <div class="catalogImage link_block_this" data-href="{{ $data->full_url }}">
+        <img src="{{ $data->first_image }}" class="catalogImage max-width pointer" data-id="{{ $data->id }}" itemprop="image">
         @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
-            <img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart pointer"
+            <img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" title="Добавить в корзину" class="add_to_cart_fast pointer icon_cart"
                  data-id="{{ $data->id }}" width="40" height="25">
         @endif
-        <div class="cost text-center">
-            @if($data->cost === 0)
-                <span class="empty-cost">под заказ</span>
+        <div class="cost text-center" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+            @if($data->cost_old > 0)
+                <span class="old-cost">{{ $data->cost_old }}</span>
+            @endif
+            @if($data->cost > 0)
+                <span class="default-cost">{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
+                <meta itemprop="price" content="{{ $data->cost }}">
+                <meta itemprop="priceCurrency" content="RUB">
+                <link itemprop="availability" href="http://schema.org/InStock">
             @else
-                @if($data->cost_old > 0)
-                    <span class="old-cost">{{ $data->cost_old }}</span>
-                    <span class="default-cost">{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
-                @else
-                    <span class="default-cost">{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
-                @endif
+                <span class="empty-cost">под заказ</span>
+                <meta itemprop="price" content="под заказ">
+                <meta itemprop="priceCurrency" content="RUB">
+                <link itemprop="availability" href="http://schema.org/PreOrder">
             @endif
         </div>
     </div>
     <div class="catalogShort">
-        <h5 class="uk-text-center">{{ $data->title }}</h5>
-        <div class="catalog-descriptions-rows">
+        <h5 itemprop="name"><a href="{{ $data->full_url }}">{{ $data->title }}</a></h5>
+        <div class="catalog-descriptions-rows" itemprop="description">
             @foreach($app->rows as $row_key => $row)
                 @if($row->template && $row->template === 'in_card' && isset($data->{$row_key}) && !empty($data->{$row_key}))
-                    <p><strong>{{ $row->title }}:</strong> {{ $data->{$row_key} }}</p>
+                    <p class="catalog-d-{{ $row_key }}">{{ $data->{$row_key} }}</p>
                 @endif
             @endforeach
         </div>
-        <p>{!! $data->short !!}</p>
     </div>
 </div>

@@ -7,11 +7,11 @@
 @section('body_class', 'template-catalog-category')
 
 @section('content')
-    @if($data->first()->parent)
+    @if($data->first()->parent && $data->first()->level !== 2)
         {!! Breadcrumbs::render('catalog.category', $data) !!}
     @endif
 
-    <div class="uk-grid uk-grid-medium uk-grid-match uk-margin-large-top">
+    <div class="uk-grid uk-grid-large uk-grid-match uk-margin-large-top">
         @each('larrock::front.catalog.blockCategory', $data, 'data')
     </div>
 @endsection

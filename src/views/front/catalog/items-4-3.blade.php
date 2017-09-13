@@ -2,9 +2,11 @@
 @section('title')
     {{$seo_midd['catalog_category_prefix']}}{{$data->get_seo->seo_title or $data->title }}
     @foreach(Request::all() as $filter_title)
-        @foreach($filter_title as $active_filters_title)
-            {{ $active_filters_title }}
-        @endforeach
+        @if(is_array($filter_title))
+            @foreach($filter_title as $active_filters_title)
+                {{ $active_filters_title }}
+            @endforeach
+        @endif
     @endforeach
     {{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}
 @endsection
@@ -16,14 +18,14 @@
         @if(config('larrock.catalog.modules.sortCost', TRUE) === TRUE)
             @include('larrock::front.modules.filters.sortCost')
         @endif
-        @if(config('larrock.catalog.modules.lilu', TRUE) === TRUE)
-            @include('larrock::front.modules.filters.lilu')
+        @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.vid')
         @endif
         @if(config('larrock.catalog.modules.itemsOnPage', TRUE) === TRUE)
             @include('larrock::front.modules.filters.itemsOnPage')
         @endif
-        @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)
-            @include('larrock::front.modules.filters.vid')
+        @if(config('larrock.catalog.modules.lilu', TRUE) === TRUE)
+            @include('larrock::front.modules.filters.lilu')
         @endif
     </div>
 

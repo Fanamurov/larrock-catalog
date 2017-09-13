@@ -456,13 +456,11 @@ class CatalogController extends Controller
     {
         $data = Cache::remember('list_catalog'. $category_url, 1440, function() use ($category_url) {
             if($data['current'] = LarrockCategory::getModel()->whereUrl($category_url)->whereActive(1)->first()){
+                $data['parent'] = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first();
                 $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereActive(1)->get();
                 $data['next_level'] = LarrockCategory::getModel()->whereParent($data['current']->id)->whereActive(1)->get();
-                if($data['current']->parent){
-                    $data['current'] = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first();
-                    $data['next_level'] = $data['current_level'];
-                    $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereActive(1)->get();
-                }
+                $get_category = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first();
+                $data['parent_level'] = LarrockCategory::getModel()->whereParent($get_category->parent)->whereActive(1)->get();
             }
             return $data;
         });
