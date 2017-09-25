@@ -1,7 +1,3 @@
-# Laravel Larrock CMS :: Catalog Component
-
----
-
 #### Depends
 - fanamurov/larrock-core
 - fanamurov/larrock-category
@@ -12,14 +8,7 @@
   composer require fanamurov/larrock-catalog
   ```
 
-2. Add the ServiceProvider to the providers array in app/config/app.php
-  ```
-  //LARROCK COMPONENT CATALOG DEPENDS
-  \Larrock\ComponentCatalog\LarrockComponentCatalogServiceProvider::class
-  \Larrock\ComponentCategory\LarrockComponentCategoryServiceProvider::class //IF NEED
-  ```
-
-3. Publish views, migrations etc.
+2. Publish views, migrations etc.
   ```sh
   $ php artisan vendor:publish
   ```
@@ -28,57 +17,37 @@
   $ php artisan vendor:publish --provider="Larrock\ComponentCatalog\LarrockComponentCatalogServiceProvider"
   $ php artisan vendor:publish --provider="Larrock\ComponentCategory\LarrockComponentCategoryServiceProvider::class" //IF NEED
   ```
-       
-4. Run artisan command:
-  ```sh
-  $ php artisan larrock:check
-  ```
-  And follow the tips for setting third-party dependencies
   
-  
-5. Run migrations
+3. Run migrations
   ```sh
   $ php artisan migrate
   ```
 
-##START
+## START
 http://yousite/admin/catalog
 
-##CONFIG
-Create /config/larrock.php
-Change Model or ComponentConfig:
+## CONFIG
+Create or change /config/**larrock.php**
 ```php
+<?php
 return [
-    'components' => [
-        'catalog' => App\Components\CatalogComponent::class
-    ],
-
-    'models' => [
-        'catalog' => \App\Models\Catalog::class
-    ]
+  'catalog' => [
+      'templates' => [
+          'categoriesTable' => 'larrock::front.catalog.items-table',
+          'categoriesBlocks' => 'larrock::front.catalog.items-4-3',
+      ],
+  
+      'categoriesView' => 'blocks' //Вид каталога по-умолчанию (blocks или table) 
+    'DefaultItemsOnPage' => 36, //Кол-во товаров на странице раздела по-умолчанию
+  
+    'ShowItemPage' => true, //Если true - показывать ссылки на страницу товара
+  
+      'modules' => [
+          'sortCost' => TRUE, //Показывать модуль сортировки
+          'lilu' => TRUE, //Показывать модуль фильтров товаров
+          'vid' => TRUE, //Показывать модуль выбора шаблона
+          'itemsOnPage' => TRUE, //Показывать модуль кол-ва товаров на страницу
+      ]
+  ]
 ];
 ```
-Change other config
-```php
-'catalog' => [
-        'templates' => [
-            'categoriesTable' => 'larrock::front.catalog.items-table',
-            'categoriesBlocks' => 'larrock::front.catalog.items-4-3',
-        ],
-
-        'defaults' => [
-            'categoriesView' => 'table'
-        ],
-
-        'modules' => [
-            'sortCost' => TRUE,
-            'lilu' => TRUE,
-            'vid' => TRUE,
-            'itemsOnPage' => TRUE,
-        ]
-    ]
-```
-
-Create App\Components\CatalogComponent and extends \Larrock\ComponentCatalog\CatalogComponent
-
-Create App\Models\Catalog and extends ComponentCatalog\Models\Catalog

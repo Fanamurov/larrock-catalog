@@ -9,7 +9,7 @@
         </li>
         @if(count($module_listCatalog['next_level']) > 0)
             <li class="current-level">
-                <span class="uk-active @if(count($module_listCatalog['current_level'] ) > 1) with-dropdown @endif">
+                <span class="uk-active uk-width-1-1 @if(count($module_listCatalog['current_level'] ) > 1) with-dropdown @endif">
                     Все <span class="uk-text-lowercase">{{ $module_listCatalog['current']->title }}</span></span>
                 @if(count($module_listCatalog['current_level']) > 1)
                     <div class="uk-button-dropdown uk-float-right" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="false">

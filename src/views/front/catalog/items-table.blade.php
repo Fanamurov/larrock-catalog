@@ -35,9 +35,21 @@ $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_gl
             <tbody>
             @foreach($data->get_tovarsActive as $item)
                 <tr>
-                    <td><img src="{{ $item->first_image }}" alt="{{ $item->title }}"></td>
-                    <td>{{ $item->title }}</td>
-                    <td class="nowrap">{{ $item->cost }} <small>{{ $item->what }}</small></td>
+                    <td class="col-img"><img src="{{ $item->first_image }}" alt="{{ $item->title }}" class="all-width"></td>
+                    <td>
+                        @if(config('larrock.catalog.ShowItemPage') === true)
+                            <a href="{{ $item->full_url }}">{{ $item->title }}</a>
+                        @else
+                            {{ $item->title }}
+                        @endif
+                    </td>
+                    <td>
+                        @if($data->cost > 0)
+                            {{ $item->cost }} <small>{{ $item->what }}</small>
+                        @else
+                            <small>цена договорная</small>
+                        @endif
+                    </td>
                     @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
                         <td><img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" class="add_to_cart_fast pointer"
                                  width="40" height="25" data-id="{{ $item->id }}"></td>

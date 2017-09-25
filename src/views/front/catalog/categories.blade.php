@@ -11,7 +11,7 @@
         {!! Breadcrumbs::render('catalog.category', $data) !!}
     @endif
 
-    <div class="uk-grid uk-grid-large uk-grid-match uk-margin-large-top">
+    <div class="uk-grid uk-grid-large uk-grid-match uk-margin-top">
         @each('larrock::front.catalog.blockCategory', $data, 'data')
     </div>
 @endsection

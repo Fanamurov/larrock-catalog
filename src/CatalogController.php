@@ -28,7 +28,7 @@ class CatalogController extends Controller
 
     /**
      * Вывод списка корневых разделов
-     * 
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getCategoryRoot()
@@ -62,10 +62,11 @@ class CatalogController extends Controller
             return $this->getItem($request, $select_category);
         }
 
-        $data['data'] = Cache::remember('getCategoryOnce'. $select_category.'_'. $request->cookie('perPage', 24), 1440,
+        $data['data'] = Cache::remember('getCategoryOnce'. $select_category.'_'. $request->cookie('perPage', 48), 1440,
             function() use ($select_category, $request){
             $data['data'] = LarrockCategory::getModel()->whereActive(1)->whereUrl($select_category)->with(['get_child'])->firstOrFail();
-            $data['data']->get_tovarsActive = $data['data']->get_tovarsActive()->paginate($request->cookie('perPage', 24));
+            $data['data']->get_tovarsActive = $data['data']->get_tovarsActive()
+                ->paginate($request->cookie('perPage', config('larrock.catalog.DefaultItemsOnPage', 36)));
             return $data;
         });
 
@@ -91,7 +92,7 @@ class CatalogController extends Controller
                 }
             });
 
-            if($request->cookie('vid', config('larrock.catalog.defaults.categoriesView'), 'blocks') === 'table'){
+            if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
                 $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
             }else{
                 $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
@@ -163,7 +164,8 @@ class CatalogController extends Controller
             $data['data']->get_tovarsActive->orderBy('cost', $sort_cost);
         }
 
-        $data['data']->get_tovarsActive = $data['data']->get_tovarsActive->select('catalog.*')->paginate($request->cookie('perPage', 24));
+        $data['data']->get_tovarsActive = $data['data']->get_tovarsActive->select('catalog.*')
+            ->paginate($request->cookie('perPage', config('larrock.catalog.DefaultItemsOnPage', 36)));
 
         if(count($data['data']->get_tovarsActive) === 0){
             abort(404, 'Товаров в разделе не найдено');
@@ -191,7 +193,7 @@ class CatalogController extends Controller
             }
         }
 
-        if($request->cookie('vid', config('larrock.catalog.defaults.categoriesView'), 'blocks') === 'table'){
+        if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
             $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
         }else{
             $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
@@ -306,6 +308,9 @@ class CatalogController extends Controller
      */
     public function getItem(Request $request, $item)
     {
+        if(config('larrock.catalog.ShowItemPage') !== true){
+            return abort(404, 'Страница не найдена');
+        }
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
             $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
@@ -314,11 +319,12 @@ class CatalogController extends Controller
             $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
         }
 
-        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data){
+        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data)
+        {
             $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
                 return LarrockCategory::getModel()->whereParent(null)->count();
             });
-            
+
             foreach ($data->get_category->first()->parent_tree as $key => $item){
                 if($count_null_level !== '1' && $key !== 0){
                     $breadcrumbs->push($item->title, $item->full_url);
@@ -352,7 +358,7 @@ class CatalogController extends Controller
         if( empty($words)){
             \Alert::add('danger', 'Вы не указали искомое слово')->flash();
         }
-        $paginate = Cookie::get('perPage', 24);
+        $paginate = Cookie::get('perPage', 48);
 
         $data['data'] = LarrockCatalog::getModel()->search($words)->with(['get_category'])->whereActive(1)->paginate($paginate);
         $data['words'] = $words;

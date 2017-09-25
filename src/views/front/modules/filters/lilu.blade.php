@@ -18,7 +18,7 @@
                         @foreach($filter_value['values'] as $value)
                             <li class="@if(collect(Request::get($filter_key))->contains($value->{$filter_key})) uk-active @endif @if( !isset($value->allow)) uk-disabled @endif">
                                 @if( !empty($value->{$filter_key}))
-                                    <a><label><input type="checkbox"
+                                    <a class="showModalLoading"><label><input type="checkbox"
                                                   name="{{$filter_key}}[]" value="{{ $value->{$filter_key} }}"
                                                   @if(collect(Request::get($filter_key))->contains($value->{$filter_key}) || count($filter_value['values']) === 1) checked @endif>
                                         {{ $value->{$filter_key} }}</label></a>
