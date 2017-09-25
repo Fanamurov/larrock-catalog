@@ -159,7 +159,7 @@ class CatalogController extends Controller
         }
 
         $sort_cost = $request->cookie('sort_cost');
-        if($sort_cost !== 'none'){
+        if($sort_cost && $sort_cost !== 'none'){
             $data['data']->get_tovarsActive->orderBy('cost', $sort_cost);
         }
 
@@ -173,10 +173,14 @@ class CatalogController extends Controller
             $data['data']->get_tovarsActive->setPath($data['data']->full_url);
         }
 
-        Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
-        {
-            foreach ($data->parent_tree as $item){
-                $breadcrumbs->push($item->title, $item->full_url);
+        Breadcrumbs::register('catalog.category', function($breadcrumbs, $data){
+            $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
+                return LarrockCategory::getModel()->whereParent(null)->count();
+            });
+            foreach ($data->parent_tree as $key => $item){
+                if($count_null_level !== '1' && $key !== 0){
+                    $breadcrumbs->push($item->title, $item->full_url);
+                }
             }
         });
 
@@ -310,10 +314,15 @@ class CatalogController extends Controller
             $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
         }
 
-        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data)
-        {
-            foreach ($data->get_category->first()->parent_tree as $item){
-                $breadcrumbs->push($item->title, $item->full_url);
+        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data){
+            $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
+                return LarrockCategory::getModel()->whereParent(null)->count();
+            });
+            
+            foreach ($data->get_category->first()->parent_tree as $key => $item){
+                if($count_null_level !== '1' && $key !== 0){
+                    $breadcrumbs->push($item->title, $item->full_url);
+                }
             }
             $breadcrumbs->push($data->title);
         });
