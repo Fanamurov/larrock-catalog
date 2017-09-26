@@ -1,14 +1,13 @@
 @extends('larrock::front.main')
 @section('title')
-    {{$seo_midd['catalog_category_prefix']}}{{$data->get_seo->seo_title or $data->title }}
-    @foreach(Request::all() as $filter_title)
+    {{ $seo_midd['catalog_category_prefix'] }}
+    {{ $data->get_seo->seo_title or $data->title }}@foreach(Request::all() as $filter_title)
         @if(is_array($filter_title))
             @foreach($filter_title as $active_filters_title)
                 {{ $active_filters_title }}
             @endforeach
         @endif
-    @endforeach
-    {{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}
+    @endforeach{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}
 @endsection
 
 @section('content')

@@ -1,8 +1,6 @@
 @extends('larrock::front.main')
 @section('title')
-    {{ $seo_midd['catalog_category_prefix'] }}
-    {{ $data->first()->get_parent_seo_title }} 
-    {{ $seo_midd['catalog_category_postfix'] }}{{ $seo_midd['postfix_global'] }}
+    {{ $seo_midd['catalog_category_prefix'] }}{{ $data->first()->get_parent_seo_title }}{{ $seo_midd['catalog_category_postfix'] }}{{ $seo_midd['postfix_global'] }}
 @endsection
 @section('body_class', 'template-catalog-category')
 
