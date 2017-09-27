@@ -23,7 +23,9 @@ Route::group(['middleware' => $middlewares], function(){
     Route::get('/root', [
         'as' => 'catalog.root', 'uses' => CatalogController::class .'@getCategoryRoot'
     ]);
-
+    Route::get('/yml.xml', [
+        'as' => 'catalog.yml', 'uses' => CatalogController::class .'@YML'
+    ]);
 
     Route::get('/catalog/all', [
         'as' => 'catalog.all', 'uses' => CatalogController::class .'@getAllTovars'

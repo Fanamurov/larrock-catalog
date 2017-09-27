@@ -482,4 +482,31 @@ class CatalogController extends Controller
         });
         return $data;
     }
+
+    /**
+     * Генерация YML-карты каталога
+     * 
+     * @return $this
+     */
+    public function YML()
+    {
+        $activeCategory = Cache::remember('listActiveCategoriesYML', 1440, function(){
+            $getActiveCategory = LarrockCategory::getModel()->whereActive(1)->whereParent(NULL)
+                ->whereComponent('catalog')->with(['get_childActive.get_childActive.get_childActive'])->get();
+            $tree = new Tree();
+            return $tree->listActiveCategories($getActiveCategory);
+        });
+
+        $data = Cache::remember('YMLcatalog', 1440, function() use ($activeCategory){
+            return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function($q) use($activeCategory){
+                $q->whereIn(LarrockCategory::getConfig()->table .'.id', $activeCategory);
+            })->get();
+        });
+
+        $categories = Cache::remember('YMLcategory', 1440, function(){
+            return LarrockCategory::getModel()->whereActive(1)->whereComponent('catalog')->get();
+        });
+
+        return \Response::view('larrock::front.yml', ['data' => $data, 'categories' => $categories])->header('Content-Type', 'application/xml');
+    }
 }
