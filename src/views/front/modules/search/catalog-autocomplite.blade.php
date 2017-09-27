@@ -1,4 +1,4 @@
-<form class="form-search uk-form form-search-autocomplite" method="post" action="/search/catalog/serp">
+<form id="search-autocomplite" class="form-search uk-form form-search-autocomplite" method="post" action="/search/catalog/serp">
     <div class="uk-form-row">
         <select name="query" class="uk-width-1-1 uk-form-large" id="search_site">
             <option value="@yield('title_search')">@yield('title_search')</option>
@@ -46,6 +46,10 @@
                         '<span class="caption">в разделе: ' + escape(item.category.replace('&quot;', '').replace('&quot;', '')) + '</span>' +
                         '</div>';
                 }
+            },
+            onChange: function () {
+                noty_show('message', 'Перенаправляем к результатам поиска...');
+                $('#search-autocomplite').submit();
             }
         });
     </script>

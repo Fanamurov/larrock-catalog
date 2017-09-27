@@ -161,17 +161,22 @@ class Catalog extends Model implements HasMediaConversions
 	];
 
 	public function get_category()
-	{
-		return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id');
-	}
+    {
+        return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id');
+    }
 
-	public function get_seo()
-	{
-		return $this->hasOne(Seo::class, 'seo_id_connect', 'id')->whereSeoTypeConnect('catalog');
-	}
+    public function getCategoryActive()
+    {
+        return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id')->where('category.active', '=', 1);
+    }
 
-	public function getFullUrlAttribute()
-	{
+    public function get_seo()
+    {
+        return $this->hasOne(Seo::class, 'seo_id_connect', 'id')->whereSeoTypeConnect('catalog');
+    }
+
+    public function getFullUrlAttribute()
+    {
         return Cache::remember('url_catalog'. $this->id, 1440, function() {
             $url = '/catalog';
             foreach ($this->get_category()->first()->parent_tree as $category){
@@ -179,59 +184,59 @@ class Catalog extends Model implements HasMediaConversions
             }
             $url .= '/'. $this->url;
             return $url;
-		});
-	}
+        });
+    }
 
-	public function getFullUrlCategoryAttribute()
-	{
-		if($get_category = $this->get_category->first()){
-			return $get_category->full_url;
-		}
-		return NULL;
-	}
+    public function getFullUrlCategoryAttribute()
+    {
+        if($get_category = $this->get_category->first()){
+            return $get_category->full_url;
+        }
+        return NULL;
+    }
 
-	public function getUrlToSearchAttribute()
-	{
-		return '/search/catalog/serp/'. \Request::get('q');
-	}
+    public function getUrlToSearchAttribute()
+    {
+        return '/search/catalog/serp/'. \Request::get('q');
+    }
 
-	public function getClassElementAttribute()
-	{
-		return 'product';
-	}
+    public function getClassElementAttribute()
+    {
+        return 'product';
+    }
 
-	public function getImages()
-	{
-		return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
-	}
-	public function getFirstImage()
-	{
-		return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
-	}
+    public function getImages()
+    {
+        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
+    }
+    public function getFirstImage()
+    {
+        return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
+    }
 
-	public function getFirstImageAttribute()
-	{
-		$value = Cache::remember('image_f_tovar'. $this->id, 1440, function() {
-			if($get_image = $this->getFirstImage()->first()){
-				return $get_image->getUrl();
-			}
+    public function getFirstImageAttribute()
+    {
+        $value = Cache::remember('image_f_tovar'. $this->id, 1440, function() {
+            if($get_image = $this->getFirstImage()->first()){
+                return $get_image->getUrl();
+            }
             return '/_assets/_front/_images/empty_big.png';
-		});
-		return $value;
-	}
+        });
+        return $value;
+    }
 
     public function getFiles()
     {
         return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
     }
 
-	public function getCutDescriptionAttribute()
-	{
-		if( !empty($this->short)){
-			return str_limit(strip_tags($this->short), 150, '...');
-		}
+    public function getCutDescriptionAttribute()
+    {
+        if( !empty($this->short)){
+            return str_limit(strip_tags($this->short), 150, '...');
+        }
         return str_limit(strip_tags($this->description), 150, '...<a href="'. $this->full_url .'">далее</a>');
-	}
+    }
 
     public function getCostDiscountAttribute()
     {
@@ -243,4 +248,3 @@ class Catalog extends Model implements HasMediaConversions
     {
         return $this->belongsToMany(Param::class, 'option_param_link', 'catalog_id', 'param_id');
     }
-}

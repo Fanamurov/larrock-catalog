@@ -13,7 +13,7 @@
         @endif
     </div>
 
-    <div class="uk-grid uk-grid-medium uk-grid-match uk-margin-large-top">
+    <div class="catalogPageCategoryItems uk-grid uk-margin-large-top uk-margin-large-bottom">
         @each('larrock::front.catalog.blockItem', $data, 'data')
     </div>
 

@@ -164,8 +164,14 @@ class CatalogComponent extends Component
 
     public function createSitemap()
     {
-        return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q){
-            $q->where('sitemap', '=', 1);
-        })->get();
+        $tree = new Tree();
+        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)->whereComponent('catalog')->whereParent(NULL)->get())){
+            $table = LarrockCategory::getConfig()->table;
+
+            return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
+                $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);
+            })->get();
+        }
+        return [];
     }
 }

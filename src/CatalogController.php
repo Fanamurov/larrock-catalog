@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Larrock\ComponentCatalog\Models\Catalog;
 use Larrock\ComponentCategory\Models\Category;
 use Illuminate\Http\Response;
+use Larrock\Core\Helpers\Tree;
 use Session;
 use Larrock\ComponentCatalog\Facades\LarrockCatalog;
 
@@ -69,6 +70,12 @@ class CatalogController extends Controller
                 ->paginate($request->cookie('perPage', config('larrock.catalog.DefaultItemsOnPage', 36)));
             return $data;
         });
+
+        foreach ($data['data']->parent_tree as $category){
+            if($category->active !== 1){
+                return abort('404', 'Раздел не опубликован');
+            }
+        }
 
         if(count($data['data']->get_child)> 0){
             Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
@@ -128,6 +135,12 @@ class CatalogController extends Controller
             return Category::whereComponent('catalog')->whereActive(1)->whereUrl($select_category)
                 ->with(['get_childActive.get_childActive'])->firstOrFail();
         });
+
+        foreach ($data['data']->parent_tree as $category){
+            if($category->active !== 1){
+                return abort('404', 'Раздел не опубликован');
+            }
+        }
 
         $category_array = Cache::remember('categoryArray'. $select_category, 1440, function() use ($data){
             $category_array = collect([]);
@@ -319,8 +332,15 @@ class CatalogController extends Controller
             $data['data'] = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->firstOrFail();
         }
 
-        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data)
-        {
+        foreach ($data['data']->get_category as $item_category){
+            foreach ($item_category->parent_tree as $category){
+                if($category->active !== 1){
+                    return abort('404', 'Раздел не опубликован');
+                }
+            }
+        }
+
+        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data){
             $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
                 return LarrockCategory::getModel()->whereParent(null)->count();
             });
@@ -360,7 +380,14 @@ class CatalogController extends Controller
         }
         $paginate = Cookie::get('perPage', 48);
 
-        $data['data'] = LarrockCatalog::getModel()->search($words)->with(['get_category'])->whereActive(1)->paginate($paginate);
+        //Ищем опубликованные разделы и их опубликованных потомков
+        $getActiveCategory = LarrockCategory::getModel()->whereActive(1)->whereComponent('catalog')->whereParent(NULL)->with(['get_childActive.get_childActive.get_childActive'])->get();
+        $tree = new Tree();
+        $activeCategory = $tree->listActiveCategories($getActiveCategory);
+
+        $data['data'] = LarrockCatalog::getModel()->search($words)->whereHas('get_category', function($q) use($activeCategory){
+            $q->whereIn(LarrockCategory::getConfig()->table .'.id', $activeCategory);
+        })->whereActive(1)->paginate($paginate);
         $data['words'] = $words;
 
         Breadcrumbs::register('catalog.search', function($breadcrumbs) use ($words){
@@ -414,6 +441,13 @@ class CatalogController extends Controller
     public function getTovar(Request $request)
     {
         if($get_tovar = LarrockCatalog::getModel()->whereActive(1)->whereId($request->get('id'))->with(['get_category'])->first()){
+            foreach ($get_tovar->get_category as $item_category){
+                foreach ($item_category->parent_tree as $category){
+                    if($category->active !== 1){
+                        return response('Товар находится в неопубликованном разделе', 404);
+                    }
+                }
+            }
             if(file_exists(base_path(). '/vendor/fanamurov/larrock-discount')){
                 $discountHelper = new DiscountHelper();
                 $get_tovar = $discountHelper->apply_discountsByTovar($get_tovar);
