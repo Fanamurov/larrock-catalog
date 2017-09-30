@@ -248,3 +248,4 @@ class Catalog extends Model implements HasMediaConversions
     {
         return $this->belongsToMany(Param::class, 'option_param_link', 'catalog_id', 'param_id');
     }
+}
