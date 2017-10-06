@@ -20,7 +20,7 @@ class CreateCatalogTable extends Migration {
 			$table->text('description')->nullable();
 			$table->char('url')->unique();
 			$table->char('what')->nullable();
-			$table->float('cost', 10)->default(0.00);
+			$table->float('cost', 10)->nullable();
 			$table->float('cost_old', 10)->nullable();
 			$table->char('manufacture')->nullable();
 			$table->integer('position')->default(0);
