@@ -1,6 +1,12 @@
 @extends('larrock::front.main')
-@section('title'){{$seo_midd['catalog_category_prefix']}}{{$data->get_seo->seo_title or
-$data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}@endsection
+@section('title')
+    @if($seo_midd['url'])
+        {{ $seo_midd['url'] }}
+    @else
+        {{$seo_midd['catalog_category_prefix']}}{{$data->get_seo->seo_title or
+        $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}
+    @endif
+@endsection
 
 @section('content')
     {!! Breadcrumbs::render('catalog.category', $data) !!}
