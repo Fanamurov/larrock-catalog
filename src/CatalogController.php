@@ -189,13 +189,8 @@ class CatalogController extends Controller
         }
 
         Breadcrumbs::register('catalog.category', function($breadcrumbs, $data){
-            $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
-                return LarrockCategory::getModel()->whereParent(null)->count();
-            });
             foreach ($data->parent_tree as $key => $item){
-                if($count_null_level !== '1' && $key !== 0){
-                    $breadcrumbs->push($item->title, $item->full_url);
-                }
+                $breadcrumbs->push($item->title, $item->full_url);
             }
         });
 
@@ -322,7 +317,7 @@ class CatalogController extends Controller
     public function getItem(Request $request, $item)
     {
         if(config('larrock.catalog.ShowItemPage') !== true){
-            return abort(404, 'Страница не найдена');
+            return abort(404, 'Страница не товара отключена');
         }
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
@@ -346,7 +341,7 @@ class CatalogController extends Controller
             });
 
             foreach ($data->get_category->first()->parent_tree as $key => $item){
-                if($count_null_level !== '1' && $key !== 0){
+                if(count($data->get_category) === 1 || ($count_null_level !== '1' && $key !== 0)){
                     $breadcrumbs->push($item->title, $item->full_url);
                 }
             }
@@ -474,9 +469,10 @@ class CatalogController extends Controller
                 $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereActive(1)->get();
                 $data['next_level'] = LarrockCategory::getModel()->whereParent($data['current']->id)->whereActive(1)->get();
 
-                $get_category = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first();
-
-                $data['parent_level'] = LarrockCategory::getModel()->whereParent($get_category->parent)->whereActive(1)->get();
+                $data['parent_level'] = [];
+                if($get_category = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first()){
+                    $data['parent_level'] = LarrockCategory::getModel()->whereParent($get_category->parent)->whereActive(1)->get();
+                }
             }
             return $data;
         });

@@ -1,7 +1,7 @@
 <form action="" method="get" class="catalog-filters module-filter" id="block_sorters">
     @foreach($filter as $filter_key => $filter_value)
         @if(count($filter_value['values']) > 1)
-            <div class="uk-button-dropdown nowrap" data-uk-dropdown="">
+            <div class="uk-button-dropdown uk-text-nowrap" data-uk-dropdown="{mode: 'click'}">
                 <button class="uk-button" type="button">
                     {{ $filter_value['name'] }}:
                     @if(Request::has($filter_key))
@@ -18,10 +18,10 @@
                         @foreach($filter_value['values'] as $value)
                             <li class="@if(collect(Request::get($filter_key))->contains($value->{$filter_key})) uk-active @endif @if( !isset($value->allow)) uk-disabled @endif">
                                 @if( !empty($value->{$filter_key}))
-                                    <a class="showModalLoading"><label><input type="checkbox"
+                                    <label class="showModalLoading"><input type="checkbox" onchange="$('.module-filter').submit()"
                                                   name="{{$filter_key}}[]" value="{{ $value->{$filter_key} }}"
                                                   @if(collect(Request::get($filter_key))->contains($value->{$filter_key}) || count($filter_value['values']) === 1) checked @endif>
-                                        {{ $value->{$filter_key} }}</label></a>
+                                        {{ $value->{$filter_key} }}</label>
                                 @endif
                             </li>
                         @endforeach

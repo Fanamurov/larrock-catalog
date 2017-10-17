@@ -5,11 +5,14 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
 @section('content')
     {!! Breadcrumbs::render('catalog.item', $data) !!}
 
-    <div class="catalogPageItem uk-margin-large-top" itemscope itemtype="http://schema.org/Product">
+    <div class="catalogPageItem uk-margin-large-top uk-position-relative" itemscope itemtype="http://schema.org/Product">
+        @level(2)
+        <a class="admin_edit" href="/admin/catalog/{{ $data->id }}/edit">Edit element</a>
+        @endlevel
         <div class="uk-grid">
             <div class="uk-width-1-1 uk-width-medium-1-2 uk-width-large-1-3">
                 <div class="catalogImage">
-                    <img src="{{ $data->first_image }}" class="catalogImage all-width" itemprop="image">
+                    <a data-fancybox="gallery" data-caption="{{ $data->title }}" href="{{ $data->first_image }}"><img src="{{ $data->first_image }}" class="catalogImage all-width" itemprop="image"></a>
                 </div>
             </div>
             <div class="uk-width-1-1 uk-width-medium-1-2 uk-width-large-2-3">
@@ -23,6 +26,18 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                             @endif
                         @endforeach
                     </div>
+                    @if(config('larrock.catalog.DescriptionCatalogItemLink') && $data->description_item_on_link)
+                        @if($data->description_item_on_link->short)
+                            <div class="description-link description-link-short">
+                                {!! $data->description_item_on_link->short !!}
+                            </div>
+                        @endif
+                        @if($data->description_item_on_link->description)
+                            <div class="description-link description-link-description">
+                                {!! $data->description_item_on_link->description !!}
+                            </div>
+                        @endif
+                    @endif
                 </div>
                 <div class="cost" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                     @if($data->cost == 0)

@@ -6,6 +6,7 @@ use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
+use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\Core\Models\Seo;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
@@ -191,6 +192,14 @@ class Catalog extends Model implements HasMediaConversions
     {
         if($get_category = $this->get_category->first()){
             return $get_category->full_url;
+        }
+        return NULL;
+    }
+
+    public function getDescriptionItemOnLinkAttribute()
+    {
+        if(config('larrock.catalog.DescriptionCatalogItemLink')){
+            return LarrockFeed::getModel()->find($this->description_link);
         }
         return NULL;
     }

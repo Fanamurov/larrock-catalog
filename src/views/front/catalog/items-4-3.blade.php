@@ -27,22 +27,52 @@
         @if(config('larrock.catalog.modules.itemsOnPage', TRUE) === TRUE)
             @include('larrock::front.modules.filters.itemsOnPage')
         @endif
+    </div>
+    <div class="catalog-filters uk-flex">
         @if(config('larrock.catalog.modules.lilu', TRUE) === TRUE)
             @include('larrock::front.modules.filters.lilu')
         @endif
     </div>
 
-    <div class="catalogPageCategoryItems uk-grid uk-margin-large-top uk-margin-large-bottom">
-        @each('larrock::front.catalog.blockItem', $data->get_tovarsActive, 'data')
-    </div>
-
-    {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
-
-    @if( !empty($data->description))
-        <div class="catalog-CategoryDescription">
-            {!! $data->description !!}
-        </div>
+    @if($data->description_category_on_link)
+        <ul class="uk-tab uk-margin-large-top" data-uk-switcher="{connect:'#catalogCategoryContent'}">
+            <li class="uk-active"><a href="">Прайс</a></li>
+            <li><a href="">Описание</a></li>
+        </ul>
     @endif
+
+    <ul id="catalogCategoryContent" class="uk-switcher">
+        <li @if( !$data->description_category_on_link) class="uk-active" @endif>
+            <div class="catalogPageCategoryItems uk-grid uk-margin-large-top uk-margin-large-bottom">
+                @each('larrock::front.catalog.blockItem', $data->get_tovarsActive, 'data')
+            </div>
+
+            {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
+        </li>
+        <li>
+            <div class="catalogDescriptionTab uk-margin-large-top">
+                @if( !empty($data->description))
+                    <div class="catalog-CategoryDescription">
+                        {!! $data->description !!}
+                    </div>
+                @endif
+
+                @if(config('larrock.catalog.DescriptionCatalogCategoryLink') && $data->description_category_on_link)
+                    @if($data->description_category_on_link->short)
+                        <div class="description-link description-link-short">
+                            {!! $data->description_category_on_link->short !!}
+                        </div>
+                    @endif
+                    @if($data->description_category_on_link->description)
+                        <div class="description-link description-link-description">
+                            {!! $data->description_category_on_link->description !!}
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </li>
+    </ul>
+
 @endsection
 
 @section('front.modules.list.catalog')
