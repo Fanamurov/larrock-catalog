@@ -26,18 +26,6 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                             @endif
                         @endforeach
                     </div>
-                    @if(config('larrock.catalog.DescriptionCatalogItemLink') && $data->description_item_on_link)
-                        @if($data->description_item_on_link->short)
-                            <div class="description-link description-link-short">
-                                {!! $data->description_item_on_link->short !!}
-                            </div>
-                        @endif
-                        @if($data->description_item_on_link->description)
-                            <div class="description-link description-link-description">
-                                {!! $data->description_item_on_link->description !!}
-                            </div>
-                        @endif
-                    @endif
                 </div>
                 <div class="cost" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                     @if($data->cost == 0)
@@ -55,6 +43,22 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                 @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
                     <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast" data-id="{{ $data->id }}">
                         Добавить в корзину
+                    </div>
+                @endif
+            </div>
+            <div class="uk-width-1-1">
+                @if(config('larrock.catalog.DescriptionCatalogItemLink') && $data->description_item_on_link)
+                    <div class="uk-margin-large-top">
+                        @if($data->description_item_on_link->short)
+                            <div class="description-link description-link-short">
+                                {!! $data->description_item_on_link->short !!}
+                            </div>
+                        @endif
+                        @if($data->description_item_on_link->description)
+                            <div class="description-link description-link-description">
+                                {!! $data->description_item_on_link->description !!}
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

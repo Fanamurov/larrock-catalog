@@ -35,7 +35,7 @@ class CatalogController extends Controller
     public function getCategoryRoot()
     {
         $data = Cache::remember('getTovars_root', 1440, function(){
-            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')->orderBy('position', 'DESC')->get();
+            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')->orderBy('position', 'DESC')->orderBy('created_at', 'ASC')->get();
             return $data;
         });
 

@@ -37,7 +37,7 @@ class AdminCatalogController extends Controller
 	 */
 	public function index()
 	{
-		$data['categories'] = LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)->orderBy('position', 'DESC')->with(['get_child', 'get_parent'])->paginate(30);
+		$data['categories'] = LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)->orderBy('position', 'DESC')->orderBy('updated_at', 'ASC')->with(['get_child', 'get_parent'])->paginate(30);
 		$data['nalichie'] = LarrockCatalog::getModel()->where('nalichie', '<', 1)->get();
 
 		return view('larrock::admin.catalog.index', $data);
@@ -127,7 +127,7 @@ class AdminCatalogController extends Controller
         $data['category'] = LarrockCategory::getModel()->whereId($id)->with(['get_child', 'get_parent'])->firstOrFail();
         $data['data'] = LarrockCatalog::getModel()->whereHas('get_category', function ($q) use ($id){
             $q->where('category.id', '=', $id);
-        })->orderByDesc('position')->orderByDesc('updated_at')->paginate('50');
+        })->orderByDesc('position')->orderBy('updated_at', 'ASC')->paginate('50');
 
 
 		Breadcrumbs::register('admin.catalog.category', function($breadcrumbs, $data)
