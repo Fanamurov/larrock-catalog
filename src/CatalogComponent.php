@@ -75,7 +75,7 @@ class CatalogComponent extends Component
         $this->rows['articul'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setTemplate('in_card');
 
         $row = new FormInput('description_link', 'ID материала Feed для описания');
-        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
+        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
         /*$row = new FormCheckbox('label_new', 'Метка нового');
         $this->rows['label_new'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
