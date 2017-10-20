@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Cookie;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use App\Http\Controllers\Controller;
-use Larrock\ComponentCatalog\Helpers\HelperCatalog;
 use Breadcrumbs;
 use Cache;
 use Illuminate\Http\Request;
-use Larrock\ComponentCatalog\Models\Catalog;
-use Larrock\ComponentCategory\Models\Category;
 use Illuminate\Http\Response;
 use Larrock\Core\Helpers\Tree;
 use Session;
@@ -132,7 +129,7 @@ class CatalogController extends Controller
         }
 
         $data['data'] = Cache::remember('getCategoryEx'. $select_category, 1440, function() use ($select_category){
-            return Category::whereComponent('catalog')->whereActive(1)->whereUrl($select_category)
+            return LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->whereUrl($select_category)
                 ->with(['get_childActive.get_childActive'])->firstOrFail();
         });
 
@@ -482,7 +479,7 @@ class CatalogController extends Controller
     /**
      * Генерация YML-карты каталога
      * 
-     * @return $this
+     * @return Response|CatalogController
      */
     public function YML()
     {

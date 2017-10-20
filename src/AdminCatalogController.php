@@ -5,12 +5,11 @@ namespace Larrock\ComponentCatalog;
 use Breadcrumbs;
 use Cache;
 use Illuminate\Http\Request;
-
-use App\Http\Controllers\Controller;
 use JsValidator;
-use Alert;
 use Lang;
+use Larrock\Core\AdminController;
 use Larrock\Core\Component;
+use Session;
 use Validator;
 use Redirect;
 use View;
@@ -18,7 +17,7 @@ use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCatalog\Facades\LarrockCatalog;
 use Larrock\ComponentCart\Facades\LarrockCart;
 
-class AdminCatalogController extends Controller
+class AdminCatalogController extends AdminController
 {
 	public function __construct()
 	{
@@ -84,7 +83,7 @@ class AdminCatalogController extends Controller
             return back()->withInput($request->except('password'))->withErrors($validator);
         }
 
-        LarrockCatalog::getModel()->fill($request->all());
+        $data = LarrockCatalog::getModel()->fill($request->all());
         foreach ($this->config->rows as $row){
             if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
                 $data->{$row->name} = $request->input($row->name, NULL);
@@ -94,7 +93,6 @@ class AdminCatalogController extends Controller
             }
         }
 		$data->user_id = \Auth::getUser()->id;
-        //$data->articul = 'AR'. $request->input('id', $this->component->model::max('id'));
 
 		if($data->save()){
             $this->component->actionAttach($this->config, $data, $request);
@@ -107,10 +105,10 @@ class AdminCatalogController extends Controller
 					$data->addMedia(public_path() .'/image_cache/'. $data->id .'-'. $image)->preservingOriginal()->toMediaLibrary('images');
 				}
 			}
-            Alert::add('successAdmin', Lang::get('apps.create.success-temp'))->flash();
+            Session::push('message.success',  Lang::get('apps.create.success-temp'));
             return Redirect::to('/admin/'. $this->config->name .'/'. $data->id .'/edit')->withInput();
 		}
-        Alert::add('errorAdmin', Lang::get('apps.create.error'));
+        Session::push('message.danger', Lang::get('apps.create.error'));
         return back()->withInput();
 	}
 
@@ -130,8 +128,7 @@ class AdminCatalogController extends Controller
         })->orderByDesc('position')->orderBy('updated_at', 'ASC')->paginate('50');
 
 
-		Breadcrumbs::register('admin.catalog.category', function($breadcrumbs, $data)
-		{
+		Breadcrumbs::register('admin.catalog.category', function($breadcrumbs, $data){
             $breadcrumbs->parent('admin.catalog.index');
             foreach($data->parent_tree as $item){
                 $breadcrumbs->push($item->title, '/admin/'. LarrockCatalog::getName() .'/'. $item->id);
@@ -156,8 +153,7 @@ class AdminCatalogController extends Controller
         $validator = JsValidator::make(Component::_valid_construct(LarrockCatalog::getConfig(), 'update', $id));
         View::share('validator', $validator);
 
-		Breadcrumbs::register('admin.catalog.edit', function($breadcrumbs, $data)
-		{
+		Breadcrumbs::register('admin.catalog.edit', function($breadcrumbs, $data){
 			$breadcrumbs->parent('admin.'. LarrockCatalog::getName() .'.index');
             foreach($data->get_category[0]->parent_tree as $item){
                 $breadcrumbs->push($item->title, '/admin/'. LarrockCatalog::getName() .'/'. $item->id);
@@ -204,11 +200,11 @@ class AdminCatalogController extends Controller
 		if($data->save()){
             LarrockCatalog::actionAttach(LarrockCatalog::getConfig(), $data, $request);
 
-            Alert::add('successAdmin', Lang::get('apps.update.success', ['name' => $request->input('title')]))->flash();
+            Session::push('message.success', Lang::get('apps.update.success', ['name' => $request->input('title')]));
 			\Cache::flush();
 			return back();
 		}
-        Alert::add('warning', Lang::get('apps.update.nothing', ['name' => $request->input('title')]))->flash();
+        Session::push('message.danger', Lang::get('apps.update.nothing', ['name' => $request->input('title')]));
 		return back()->withInput();
 	}
 
@@ -227,13 +223,13 @@ class AdminCatalogController extends Controller
             if($data->delete()){
                 $this->component->actionAttach($this->config, $data, $request);
 
-                Alert::add('successAdmin', Lang::get('apps.delete.success', ['name' => $name]))->flash();
+                Session::push('message.success', Lang::get('apps.delete.success', ['name' => $name]));
                 \Cache::flush();
             }else{
-                Alert::add('errorAdmin', Lang::get('apps.delete.error', ['name' => $name]))->flash();
+                Session::push('message.danger', Lang::get('apps.delete.error', ['name' => $name]));
             }
         }else{
-            Alert::add('errorAdmin', 'Такого материала больше нет')->flash();
+            Session::push('message.danger', 'Такого материала больше нет');
         }
 
         if($request->get('place') === 'material'){
@@ -272,7 +268,7 @@ class AdminCatalogController extends Controller
         if($get_tovar = LarrockCatalog::getModel()->whereId($request->get('id'))->with(['get_category'])->first()){
             if($request->get('in_template') === 'true'){
                 $order = LarrockCart::getModel()->whereOrderId($request->get('order_id'))->first();
-                return view('admin.cart.getItem-modal', ['order' => $order, 'data' => $get_tovar]);
+                return view('larrock::admin.cart.getItem-modal', ['order' => $order, 'data' => $get_tovar]);
             }
             return response()->json($get_tovar);
         }
