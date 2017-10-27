@@ -7,12 +7,12 @@ use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
-use Larrock\Core\Models\Seo;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
 use Larrock\ComponentCatalog\Facades\LarrockCatalog;
-use Spatie\MediaLibrary\Media;
+use Larrock\Core\Traits\GetFilesAndImages;
+use Larrock\Core\Traits\GetSeo;
 
 /**
  * App\Models\Catalog
@@ -103,6 +103,8 @@ use Spatie\MediaLibrary\Media;
 class Catalog extends Model implements HasMediaConversions
 {
     use HasMediaTrait;
+    use GetFilesAndImages;
+    use GetSeo;
 
     /**
      * Create a new Eloquent model instance.
@@ -123,17 +125,8 @@ class Catalog extends Model implements HasMediaConversions
         $this->syncOriginal();
         $this->fill($attributes);
         $this->table = LarrockCatalog::getConfig()->table;
-    }
-
-    public function registerMediaConversions(Media $media = null)
-    {
-        $this->addMediaConversion('110x110')
-            ->height(110)->width(110)
-            ->performOnCollections('images');
-
-        $this->addMediaConversion('140x140')
-            ->height(140)->width(140)
-            ->performOnCollections('images');
+        $this->modelName = LarrockCatalog::getModelName();
+        $this->componentName = 'catalog';
     }
 
 	use SearchableTrait;
@@ -169,11 +162,6 @@ class Catalog extends Model implements HasMediaConversions
     public function getCategoryActive()
     {
         return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id')->where('category.active', '=', 1);
-    }
-
-    public function get_seo()
-    {
-        return $this->hasOne(Seo::class, 'seo_id_connect', 'id')->whereSeoTypeConnect('catalog');
     }
 
     public function getFullUrlAttribute()
@@ -212,31 +200,6 @@ class Catalog extends Model implements HasMediaConversions
     public function getClassElementAttribute()
     {
         return 'product';
-    }
-
-    public function getImages()
-    {
-        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
-    }
-    public function getFirstImage()
-    {
-        return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
-    }
-
-    public function getFirstImageAttribute()
-    {
-        $value = Cache::remember('image_f_tovar'. $this->id, 1440, function() {
-            if($get_image = $this->getFirstImage()->first()){
-                return $get_image->getUrl();
-            }
-            return '/_assets/_front/_images/empty_big.png';
-        });
-        return $value;
-    }
-
-    public function getFiles()
-    {
-        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockCatalog::getModelName()], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
     }
 
     public function getCutDescriptionAttribute()
