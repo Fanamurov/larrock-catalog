@@ -15,7 +15,7 @@ class CreateOptionParamTable extends Migration {
 		Schema::create('option_param', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('title')->unique('title');
+			$table->string('title', 191)->unique('title');
 			$table->timestamps();
 		});
 	}
