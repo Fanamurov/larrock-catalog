@@ -84,7 +84,7 @@ class CatalogController extends Controller
                     }
                 }
             });
-            return view('larrock::front.catalog.categories', ['data' => $get_category->get_child]);
+            return view()->first(['larrock::front.catalog.categories.'. $category, 'larrock::front.catalog.categories'], ['data' => $get_category->get_child]);
         }
 
         if(count($data['data']->get_tovarsActive) > 0){
@@ -97,9 +97,17 @@ class CatalogController extends Controller
             });
 
             if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
-                $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
+                if(view()->exists('larrock.catalog.templates.categoriesTable.'. $category)){
+                    $view = 'larrock.catalog.templates.categoriesTable.'. $category;
+                }else{
+                    $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
+                }
             }else{
-                $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
+                if(view()->exists('larrock.catalog.templates.categoriesBlocks.'. $category)){
+                    $view = 'larrock.catalog.templates.categoriesTable.'. $category;
+                }else{
+                    $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
+                }
             }
 
             return view($view, [
@@ -199,9 +207,17 @@ class CatalogController extends Controller
         }
 
         if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
-            $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
+            if(view()->exists('larrock.catalog.templates.categoriesTable.'. $category)){
+                $view = 'larrock.catalog.templates.categoriesTable.'. $category;
+            }else{
+                $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
+            }
         }else{
-            $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
+            if(view()->exists('larrock.catalog.templates.categoriesBlocks.'. $category)){
+                $view = 'larrock.catalog.templates.categoriesTable.'. $category;
+            }else{
+                $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
+            }
         }
 
         return view($view, [
@@ -354,7 +370,7 @@ class CatalogController extends Controller
             $data['seo']['title'] = $data['data']->title;
         }
 
-        return view('larrock::front.catalog.item', $data);
+        return view()->first(['larrock::front.catalog.item.'. $item, 'larrock::front.catalog.item'], $data);
     }
 
     /**
