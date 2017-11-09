@@ -7,6 +7,7 @@ use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
+use Larrock\Core\Helpers\Plugins\RenderPlugins;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
@@ -116,7 +117,7 @@ class Catalog extends Model implements HasMediaConversions
     {
         $columns = Cache::remember('fillableCatalog', 1440, function(){
             $columns = \Schema::getColumnListing('catalog');
-            $columns = collect($columns)->except(['id', 'user_id', 'created_at', 'updated_at']);
+            $columns = collect($columns)->except(['id', 'created_at', 'updated_at']);
             return $columns->toArray();
         });
 
@@ -129,32 +130,32 @@ class Catalog extends Model implements HasMediaConversions
         $this->componentName = 'catalog';
     }
 
-	use SearchableTrait;
+    use SearchableTrait;
 
-	// no need for this, but you can define default searchable columns:
-	protected $searchable = [
-		'columns' => [
-			'catalog.title' => 10
-		]
-	];
+    // no need for this, but you can define default searchable columns:
+    protected $searchable = [
+        'columns' => [
+            'catalog.title' => 10
+        ]
+    ];
 
-	protected $casts = [
-		'position' => 'integer',
-		'active' => 'integer',
-		'cost' => 'float',
-		'cost_old' => 'float',
-		'nalichie' => 'integer'
-	];
+    protected $casts = [
+        'position' => 'integer',
+        'active' => 'integer',
+        'cost' => 'float',
+        'cost_old' => 'float',
+        'nalichie' => 'integer'
+    ];
 
-	protected $appends = [
-		'full_url',
-		'full_url_category',
-		'url_to_search',
-		'class_element',
-		'first_image'
-	];
+    protected $appends = [
+        'full_url',
+        'full_url_category',
+        'url_to_search',
+        'class_element',
+        'first_image'
+    ];
 
-	public function get_category()
+    public function get_category()
     {
         return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id');
     }

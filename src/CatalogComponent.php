@@ -8,6 +8,7 @@ use Larrock\ComponentCatalog\Models\Param;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
+use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
 use Larrock\Core\Helpers\FormBuilder\FormSelect;
 use Larrock\Core\Helpers\FormBuilder\FormTagsCreate;
@@ -58,7 +59,8 @@ class CatalogComponent extends Component
         $this->rows['description'] = $row->setTypo();
 
         $row = new FormInput('cost', 'Цена');
-        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setInTableAdminAjaxEditable()->setSorted();
+        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+            ->setInTableAdminAjaxEditable()->setSorted();
 
         $row = new FormInput('cost_old', 'Старая цена');
         $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
@@ -66,7 +68,7 @@ class CatalogComponent extends Component
         $row = new FormSelect('what', 'Мера измерений');
         $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
             ->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setConnect(Catalog::class);
+            ->setConnect(Catalog::class)->setDefaultValue('руб./шт');
 
         $row = new FormInput('manufacture', 'Производитель');
         $this->rows['manufacture'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
@@ -92,6 +94,9 @@ class CatalogComponent extends Component
             //->setModelLink('get_vid', 'vid_id')
             ->setConnect(Param::class, 'get_param')
             ->setAttached()->setUserSelect();
+
+        $row = new FormHidden('user_id', 'user_id');
+        $this->rows['user_id'] = $row->setDefaultValue(NULL);
 
         return $this;
     }
