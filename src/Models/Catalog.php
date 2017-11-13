@@ -4,6 +4,7 @@ namespace Larrock\ComponentCatalog\Models;
 
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentDiscount\Helpers\DiscountHelper;
+use Larrock\Core\Component;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
