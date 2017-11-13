@@ -189,7 +189,7 @@ class CatalogComponent extends Component
         return Cache::remember('search'. $this->name. $admin, 1440, function() use ($admin){
             $data = [];
             if($admin){
-                $items = LarrockCatalog::getModel()->with(['get_category'])->get(['id', 'title', 'category', 'url']);
+                $items = LarrockCatalog::getModel()->with(['get_category'])->get(['id', 'title', 'url']);
             }else{
                 $items = LarrockCatalog::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'url']);
             }
@@ -201,11 +201,11 @@ class CatalogComponent extends Component
                 $data[$item->id]['category'] = NULL;
                 if($admin){
                     if($item->get_category){
-                        $data[$item->id]['category'] = $item->get_category->title;
+                        $data[$item->id]['category'] = $item->get_category->first()->title;
                     }
                 }else{
                     if($item->get_categoryActive){
-                        $data[$item->id]['category'] = $item->getCategoryActive->title;
+                        $data[$item->id]['category'] = $item->getCategoryActive->first()->title;
                     }
                 }
             }

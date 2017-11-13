@@ -103,6 +103,11 @@ use Larrock\Core\Traits\GetSeo;
  */
 class Catalog extends Model implements HasMediaConversions
 {
+    /**
+     * @var $this Component
+     */
+    public $component;
+    
     use HasMediaTrait;
     use GetFilesAndImages;
     use GetSeo;
@@ -125,9 +130,7 @@ class Catalog extends Model implements HasMediaConversions
         $this->bootIfNotBooted();
         $this->syncOriginal();
         $this->fill($attributes);
-        $this->table = LarrockCatalog::getConfig()->table;
-        $this->modelName = LarrockCatalog::getModelName();
-        $this->componentName = 'catalog';
+        $this->component = LarrockCatalog::getConfig();
     }
 
     use SearchableTrait;
