@@ -15,6 +15,7 @@ use Larrock\Core\Helpers\FormBuilder\FormTagsCreate;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 use Larrock\Core\Component;
 use Larrock\Core\Models\Config;
+use Cache;
 
 class CatalogComponent extends Component
 {
@@ -183,14 +184,14 @@ class CatalogComponent extends Component
         return [];
     }
 
-    public function search($admin)
+    public function search($admin = NULL)
     {
         return Cache::remember('search'. $this->name. $admin, 1440, function() use ($admin){
             $data = [];
             if($admin){
                 $items = LarrockCatalog::getModel()->with(['get_category'])->get(['id', 'title', 'category', 'url']);
             }else{
-                $items = LarrockCatalog::getModel()->whereActive(1)->with(['get_categoryActive'])->get(['id', 'title', 'category', 'url']);
+                $items = LarrockCatalog::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'url']);
             }
             foreach ($items as $item){
                 $data[$item->id]['id'] = $item->id;
@@ -204,7 +205,7 @@ class CatalogComponent extends Component
                     }
                 }else{
                     if($item->get_categoryActive){
-                        $data[$item->id]['category'] = $item->get_categoryActive->title;
+                        $data[$item->id]['category'] = $item->getCategoryActive->title;
                     }
                 }
             }
