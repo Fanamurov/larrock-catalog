@@ -132,6 +132,7 @@ class Catalog extends Model implements HasMediaConversions
         $this->syncOriginal();
         $this->fill($attributes);
         $this->component = LarrockCatalog::getConfig();
+        $this->table = LarrockCatalog::getTable();
     }
 
     use SearchableTrait;
