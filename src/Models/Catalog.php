@@ -107,7 +107,7 @@ class Catalog extends Model implements HasMediaConversions
     /**
      * @var $this Component
      */
-    public $component;
+    public $config;
     
     use HasMediaTrait;
     use GetFilesAndImages;
@@ -131,7 +131,7 @@ class Catalog extends Model implements HasMediaConversions
         $this->bootIfNotBooted();
         $this->syncOriginal();
         $this->fill($attributes);
-        $this->component = LarrockCatalog::getConfig();
+        $this->config = LarrockCatalog::getConfig();
         $this->table = LarrockCatalog::getTable();
     }
 
