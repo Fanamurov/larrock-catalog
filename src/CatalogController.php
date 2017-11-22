@@ -19,6 +19,7 @@ class CatalogController extends Controller
     public function __construct()
     {
         LarrockCatalog::shareConfig();
+        $this->middleware(LarrockCatalog::combineFrontMiddlewares());
         Breadcrumbs::register('catalog.index', function($breadcrumbs){
             $breadcrumbs->push('Каталог', '/catalog');
         });
@@ -329,8 +330,8 @@ class CatalogController extends Controller
      */
     public function getItem(Request $request, $item)
     {
-        if(config('larrock.catalog.ShowItemPage') !== true){
-            return abort(404, 'Страница не товара отключена');
+        if(config('larrock.catalog.ShowItemPage', true) !== true){
+            return abort(404, 'Страница товара отключена');
         }
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
