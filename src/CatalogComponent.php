@@ -166,7 +166,7 @@ class CatalogComponent extends Component
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-wizard')){
             $push->put('Wizard - импорт товаров', '/admin/wizard');
         }
-        if(file_exists(base_path(). '/vendor/fanamurov/larrock-discont')){
+        if(file_exists(base_path(). '/vendor/fanamurov/larrock-discount')){
             $push->put('Скидки', '/admin/discount');
         }
         return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockCatalog::getConfig(), 'url' => '/admin/'. LarrockCatalog::getName(), 'dropdown' => $dropdown, 'push' => $push]);
