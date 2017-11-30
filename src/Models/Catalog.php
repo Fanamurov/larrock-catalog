@@ -9,6 +9,7 @@ use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\Core\Helpers\Plugins\RenderPlugins;
+use Larrock\Core\Traits\GetLink;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
@@ -112,6 +113,7 @@ class Catalog extends Model implements HasMediaConversions
     use HasMediaTrait;
     use GetFilesAndImages;
     use GetSeo;
+    use GetLink;
 
     /**
      * Create a new Eloquent model instance.
@@ -127,7 +129,7 @@ class Catalog extends Model implements HasMediaConversions
             return $columns->toArray();
         });
 
-        $this->fillable($columns);
+        $this->fillable(LarrockCatalog::addFillableUserRows($columns));
         $this->bootIfNotBooted();
         $this->syncOriginal();
         $this->fill($attributes);

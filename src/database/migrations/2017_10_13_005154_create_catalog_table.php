@@ -34,6 +34,8 @@ class CreateCatalogTable extends Migration {
 			$table->integer('label_popular')->nullable();
 			$table->integer('user_id')->unsigned()->index('catalog_user_id_foreign')->nullable();
 			$table->timestamps();
+
+            $table->index(['url', 'active']);
 		});
 	}
 

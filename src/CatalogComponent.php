@@ -52,43 +52,46 @@ class CatalogComponent extends Component
             ->setAttached();
 
         $row = new FormInput('title', 'Название товара');
-        $this->rows['title'] = $row->setValid('max:255|required')->setTypo();
+        $this->rows['title'] = $row->setValid('max:255|required')->setTypo()->setFillable();
 
         $row = new FormTextarea('short', 'Короткое описание');
-        $this->rows['short'] = $row->setTypo();
+        $this->rows['short'] = $row->setTypo()->setFillable();
 
         $row = new FormTextarea('description', 'Полное описание');
-        $this->rows['description'] = $row->setTypo();
+        $this->rows['description'] = $row->setTypo()->setFillable();
 
         $row = new FormInput('cost', 'Цена');
         $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setInTableAdminAjaxEditable()->setSorted();
+            ->setInTableAdminAjaxEditable()->setSorted()->setFillable();
 
         $row = new FormInput('cost_old', 'Старая цена');
-        $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
+        $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+            ->setFillable();
 
         $row = new FormSelect('what', 'Мера измерений');
         $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
             ->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setConnect(Catalog::class)->setDefaultValue('руб./шт');
+            ->setConnect(Catalog::class)->setDefaultValue('руб./шт')->setFillable();
 
         $row = new FormInput('manufacture', 'Производитель');
-        $this->rows['manufacture'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
+        $this->rows['manufacture'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
         $row = new FormInput('articul', 'Артикул');
-        $this->rows['articul'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setTemplate('in_card');
+        $this->rows['articul'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+            ->setTemplate('in_card')->setFillable();
 
         $row = new FormInput('description_link', 'ID материала Feed для описания');
-        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
+        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+            ->setFillable();
 
         /*$row = new FormCheckbox('label_new', 'Метка нового');
-        $this->rows['label_new'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
+        $this->rows['label_new'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
         $row = new FormCheckbox('label_popular', 'Метка популярное');
-        $this->rows['label_popular'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');
+        $this->rows['label_popular'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
         $row = new FormInput('label_sale', 'Метка скидка (%)');
-        $this->rows['label_sale'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4');*/
+        $this->rows['label_sale'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();*/
 
         $row = new FormTagsCreate('param', 'Параметры товара');
         $this->rows['param'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
@@ -98,7 +101,7 @@ class CatalogComponent extends Component
             ->setAttached()->setUserSelect();
 
         $row = new FormHidden('user_id', 'user_id');
-        $this->rows['user_id'] = $row->setDefaultValue(NULL);
+        $this->rows['user_id'] = $row->setDefaultValue(NULL)->setFillable();
 
         return $this;
     }
