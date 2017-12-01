@@ -2,7 +2,7 @@
 @section('title') Поиск по каталогу - "{{ $words }}" @endsection
 
 @section('content')
-    {!! Breadcrumbs::render('catalog.search') !!}
+    {!! Breadcrumbs::render('catalog.search', $words) !!}
 
     <div class="catalog-filters">
         @if(config('larrock.catalog.modules.vid', TRUE) === TRUE)

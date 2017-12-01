@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Cookie;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use App\Http\Controllers\Controller;
-use Breadcrumbs;
 use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,9 +19,6 @@ class CatalogController extends Controller
     {
         LarrockCatalog::shareConfig();
         $this->middleware(LarrockCatalog::combineFrontMiddlewares());
-        Breadcrumbs::register('catalog.index', function($breadcrumbs){
-            $breadcrumbs->push('Каталог', '/catalog');
-        });
     }
 
     /**
@@ -76,27 +72,10 @@ class CatalogController extends Controller
         }
 
         if(count($data['data']->get_child)> 0){
-            Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
-            {
-                $breadcrumbs->push('Каталог', '/');
-                foreach ($data->first()->parent_tree as $item){
-                    if($data->first()->id !== $item->id){
-                        $breadcrumbs->push($item->title, $item->full_url);
-                    }
-                }
-            });
             return view()->first(['larrock::front.catalog.categories.'. $category, 'larrock::front.catalog.categories'], ['data' => $get_category->get_child]);
         }
 
         if(count($data['data']->get_tovarsActive) > 0){
-            Breadcrumbs::register('catalog.category', function($breadcrumbs, $data)
-            {
-                $breadcrumbs->push('Каталог', '/');
-                foreach ($data['data']->parent_tree as $item){
-                    $breadcrumbs->push($item->title, $item->full_url);
-                }
-            });
-
             if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
                 if(view()->exists('larrock.catalog.templates.categoriesTable.'. $category)){
                     $view = 'larrock.catalog.templates.categoriesTable.'. $category;
@@ -118,6 +97,8 @@ class CatalogController extends Controller
                 'filter' => $this->addFilters($request, [$data['data']->id], $data['data']->get_tovarsActive())
             ]);
         }
+
+        return abort(404);
     }
 
 
@@ -194,12 +175,6 @@ class CatalogController extends Controller
             $data['data']->get_tovarsActive->setPath($data['data']->full_url);
         }
 
-        Breadcrumbs::register('catalog.category', function($breadcrumbs, $data){
-            foreach ($data->parent_tree as $key => $item){
-                $breadcrumbs->push($item->title, $item->full_url);
-            }
-        });
-
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
             $discountHelper = new DiscountHelper();
             foreach ($data['data']->get_tovarsActive as $key => $item){
@@ -247,6 +222,7 @@ class CatalogController extends Controller
     }
 
     /**
+     * TODO: Переписать
      * Добавление фильтров для товаров каталога
      * @param Request $request
      * @param array $categories           Массив с разделами для поиска
@@ -349,19 +325,6 @@ class CatalogController extends Controller
             }
         }
 
-        Breadcrumbs::register('catalog.item', function($breadcrumbs, $data){
-            $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
-                return LarrockCategory::getModel()->whereParent(null)->count();
-            });
-
-            foreach ($data->get_category->first()->parent_tree as $key => $item){
-                if(count($data->get_category) === 1 || ($count_null_level !== '1' && $key !== 0)){
-                    $breadcrumbs->push($item->title, $item->full_url);
-                }
-            }
-            $breadcrumbs->push($data->title);
-        });
-
         //Модуль списка разделов справа
         $data['module_listCatalog'] = $this->listCatalog($data['data']->get_category->first()->url);
 
@@ -385,7 +348,7 @@ class CatalogController extends Controller
     {
         $words = $request->get('query', $words);
         if( empty($words)){
-            \Alert::add('danger', 'Вы не указали искомое слово')->flash();
+            Session::push('message.danger', 'Вы не указали искомое слово');
         }
         $paginate = Cookie::get('perPage', 48);
 
@@ -398,10 +361,6 @@ class CatalogController extends Controller
             $q->whereIn(LarrockCategory::getConfig()->table .'.id', $activeCategory);
         })->whereActive(1)->paginate($paginate);
         $data['words'] = $words;
-
-        Breadcrumbs::register('catalog.search', function($breadcrumbs) use ($words){
-            $breadcrumbs->push('Поиск "'. $words .'"');
-        });
 
         return view('larrock::front.catalog.items-search-result', $data);
     }

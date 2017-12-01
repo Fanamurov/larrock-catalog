@@ -2,7 +2,6 @@
 
 namespace Larrock\ComponentCatalog;
 
-use Breadcrumbs;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Larrock\Core\Traits\AdminMethodsCreate;
@@ -22,12 +21,9 @@ class AdminCatalogController extends Controller
 
 	public function __construct()
 	{
+        $this->middleware(LarrockCatalog::combineAdminMiddlewares());
         $this->config = LarrockCatalog::shareConfig();
-
         \Config::set('breadcrumbs.view', 'larrock::admin.breadcrumb.breadcrumb');
-		Breadcrumbs::register('admin.'. LarrockCatalog::getName() .'.index', function($breadcrumbs){
-			$breadcrumbs->push(LarrockCatalog::getTitle(), route('admin.catalog.index'));
-		});
 	}
 
 	/**
@@ -58,14 +54,6 @@ class AdminCatalogController extends Controller
         $data['data'] = LarrockCatalog::getModel()->whereHas('get_category', function ($q) use ($id){
             $q->where('category.id', '=', $id);
         })->orderByDesc('position')->orderBy('updated_at', 'ASC')->paginate('50');
-
-
-		Breadcrumbs::register('admin.catalog.category', function($breadcrumbs, $data){
-            $breadcrumbs->parent('admin.catalog.index');
-            foreach($data->parent_tree as $item){
-                $breadcrumbs->push($item->title, '/admin/'. LarrockCatalog::getName() .'/'. $item->id);
-            }
-		});
 
 		return view('larrock::admin.admin-builder.categories', $data);
 	}
