@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use Larrock\Core\Traits\AdminMethodsCreate;
 use Larrock\Core\Traits\AdminMethodsDestroy;
 use Larrock\Core\Traits\AdminMethodsEdit;
+use Larrock\Core\Traits\AdminMethodsStore;
 use Larrock\Core\Traits\AdminMethodsUpdate;
 use View;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
@@ -15,7 +16,7 @@ use Larrock\ComponentCart\Facades\LarrockCart;
 
 class AdminCatalogController extends Controller
 {
-    use AdminMethodsEdit, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate;
+    use AdminMethodsEdit, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate, AdminMethodsStore;
 
     protected $config;
 
