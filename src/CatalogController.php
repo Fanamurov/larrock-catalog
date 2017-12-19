@@ -29,7 +29,8 @@ class CatalogController extends Controller
     public function getCategoryRoot()
     {
         $data = Cache::remember('getTovars_root', 1440, function(){
-            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')->orderBy('position', 'DESC')->orderBy('created_at', 'ASC')->get();
+            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')
+                ->orderBy('position', 'DESC')->orderBy('created_at', 'ASC')->get();
             return $data;
         });
 
@@ -37,7 +38,7 @@ class CatalogController extends Controller
             return abort(404, 'Catalog categories not found');
         }
 
-        return view('larrock::front.catalog.categories', $data);
+        return view(config('larrock.views.catalog.categories', 'larrock::front.catalog.categories'), $data);
     }
 
 
@@ -54,7 +55,7 @@ class CatalogController extends Controller
 
         if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
             //Это товар, а не раздел
-            return $this->getItem($request, $select_category);
+            return $this->getItem($select_category);
         }
 
         $data['data'] = Cache::remember('getCategoryOnce'. $select_category.'_'. $request->cookie('perPage', 48), 1440,
@@ -72,21 +73,17 @@ class CatalogController extends Controller
         }
 
         if(count($data['data']->get_child)> 0){
-            return view()->first(['larrock::front.catalog.categories.'. $category, 'larrock::front.catalog.categories'], ['data' => $get_category->get_child]);
+            return view()->first([config('larrock.views.catalog.categoryUniq.'. $category, 'larrock::front.catalog.categories.'. $category),
+                config('larrock.views.catalog.categories', 'larrock::front.catalog.categories')],
+                ['data' => $data['data']->get_child]);
         }
 
         if(count($data['data']->get_tovarsActive) > 0){
-            if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
-                if(view()->exists('larrock.catalog.templates.categoriesTable.'. $category)){
-                    $view = 'larrock.catalog.templates.categoriesTable.'. $category;
+            if( !$view = config('larrock.views.catalog.categoryUniq.'. $category)){
+                if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
+                    $view = config('larrock.views.catalog.categoriesTable', 'larrock::front.catalog.items-table');
                 }else{
-                    $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
-                }
-            }else{
-                if(view()->exists('larrock.catalog.templates.categoriesBlocks.'. $category)){
-                    $view = 'larrock.catalog.templates.categoriesTable.'. $category;
-                }else{
-                    $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
+                    $view = config('larrock.views.catalog.categoriesBlocks', 'larrock::front.catalog.items-4-3');
                 }
             }
 
@@ -182,17 +179,11 @@ class CatalogController extends Controller
             }
         }
 
-        if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
-            if(view()->exists('larrock.catalog.templates.categoriesTable.'. $category)){
-                $view = 'larrock.catalog.templates.categoriesTable.'. $category;
+        if( !$view = config('larrock.views.catalog.categoryUniq.'. $category)){
+            if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
+                $view = config('larrock.views.catalog.categoriesTable', 'larrock::front.catalog.items-table');
             }else{
-                $view = config('larrock.catalog.templates.categoriesTable', 'larrock::front.catalog.items-table');
-            }
-        }else{
-            if(view()->exists('larrock.catalog.templates.categoriesBlocks.'. $category)){
-                $view = 'larrock.catalog.templates.categoriesTable.'. $category;
-            }else{
-                $view = config('larrock.catalog.templates.categoriesBlocks', 'larrock::front.catalog.items-4-3');
+                $view = config('larrock.views.catalog.categoriesBlocks', 'larrock::front.catalog.items-4-3');
             }
         }
 
@@ -304,7 +295,7 @@ class CatalogController extends Controller
      * @param $item
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getItem(Request $request, $item)
+    public function getItem($item)
     {
         if(config('larrock.catalog.ShowItemPage', false) !== true){
             return abort(404, 'Страница товара отключена');
@@ -334,7 +325,8 @@ class CatalogController extends Controller
             $data['seo']['title'] = $data['data']->title;
         }
 
-        return view()->first(['larrock::front.catalog.item.'. $item, 'larrock::front.catalog.item'], $data);
+        return view()->first([config('larrock.views.catalog.itemUniq.'. $item, 'larrock::front.catalog.item.'. $item),
+            config('larrock.views.catalog.item', 'larrock::front.catalog.item')], $data);
     }
 
     /**
@@ -362,7 +354,7 @@ class CatalogController extends Controller
         })->whereActive(1)->paginate($paginate);
         $data['words'] = $words;
 
-        return view('larrock::front.catalog.items-search-result', $data);
+        return view(config('larrock.views.catalog.search', 'larrock::front.catalog.items-search-result'), $data);
     }
 
     /**
@@ -421,7 +413,7 @@ class CatalogController extends Controller
                 $get_tovar = $discountHelper->apply_discountsByTovar($get_tovar);
             }
             if($request->get('in_template', 'true') === 'true'){
-                return view('larrock::front.modals.addToCart', ['data' => $get_tovar, 'app' => new CatalogComponent()]);
+                return view(config('larrock.views.catalog.modal', 'larrock::front.modals.addToCart'), ['data' => $get_tovar, 'app' => new CatalogComponent()]);
             }
             return response()->json($get_tovar);
         }
