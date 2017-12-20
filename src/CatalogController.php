@@ -79,7 +79,7 @@ class CatalogController extends Controller
         }
 
         if(count($data['data']->get_tovarsActive) > 0){
-            if( !$view = config('larrock.views.catalog.categoryUniq.'. $category)){
+            if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_category)){
                 if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
                     $view = config('larrock.views.catalog.categoriesTable', 'larrock::front.catalog.items-table');
                 }else{
@@ -179,7 +179,7 @@ class CatalogController extends Controller
             }
         }
 
-        if( !$view = config('larrock.views.catalog.categoryUniq.'. $category)){
+        if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_category)){
             if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
                 $view = config('larrock.views.catalog.categoriesTable', 'larrock::front.catalog.items-table');
             }else{
