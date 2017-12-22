@@ -9,6 +9,7 @@ use Larrock\Core\Traits\AdminMethodsDestroy;
 use Larrock\Core\Traits\AdminMethodsEdit;
 use Larrock\Core\Traits\AdminMethodsStore;
 use Larrock\Core\Traits\AdminMethodsUpdate;
+use Larrock\Core\Traits\ShareMethods;
 use View;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCatalog\Facades\LarrockCatalog;
@@ -16,12 +17,13 @@ use Larrock\ComponentCart\Facades\LarrockCart;
 
 class AdminCatalogController extends Controller
 {
-    use AdminMethodsEdit, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate, AdminMethodsStore;
+    use AdminMethodsEdit, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate, AdminMethodsStore, ShareMethods;
 
     protected $config;
 
 	public function __construct()
 	{
+	    $this->shareMethods();
         $this->middleware(LarrockCatalog::combineAdminMiddlewares());
         $this->config = LarrockCatalog::shareConfig();
         \Config::set('breadcrumbs.view', 'larrock::admin.breadcrumb.breadcrumb');
