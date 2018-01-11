@@ -162,6 +162,11 @@ class Catalog extends Model implements HasMediaConversions
         'first_image'
     ];
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function get_category()
     {
         return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id');
