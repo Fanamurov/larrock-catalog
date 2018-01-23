@@ -11,8 +11,9 @@ use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
 use Larrock\Core\Helpers\FormBuilder\FormSelect;
-use Larrock\Core\Helpers\FormBuilder\FormTagsCreate;
+use Larrock\Core\Helpers\FormBuilder\FormTags;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
+use Larrock\Core\Helpers\FormBuilder\FormCheckbox;
 use Larrock\Core\Component;
 use Larrock\Core\Helpers\Tree;
 use Larrock\Core\Models\Config;
@@ -45,11 +46,10 @@ class CatalogComponent extends Component
 
     protected function addRows()
     {
-        $row = new FormCategory('category', 'Раздел');
+        $row = new FormTags('category', 'Раздел');
         $this->rows['category'] = $row->setValid('required')
-            ->setConnect(Category::class, 'get_category')
-            ->setWhereConnect('component', 'catalog')
-            ->setAttached();
+            ->setModels(Catalog::class, Category::class)
+            ->setModelChildWhere('component', 'catalog');
 
         $row = new FormInput('title', 'Название товара');
         $this->rows['title'] = $row->setValid('max:255|required')->setTypo()->setFillable();
@@ -84,21 +84,18 @@ class CatalogComponent extends Component
         $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
             ->setFillable();
 
-        /*$row = new FormCheckbox('label_new', 'Метка нового');
+        $row = new FormCheckbox('label_new', 'Метка нового');
         $this->rows['label_new'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
         $row = new FormCheckbox('label_popular', 'Метка популярное');
         $this->rows['label_popular'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
         $row = new FormInput('label_sale', 'Метка скидка (%)');
-        $this->rows['label_sale'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();*/
+        $this->rows['label_sale'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
 
-        $row = new FormTagsCreate('param', 'Параметры товара');
+        $row = new FormTags('param', 'Параметры товара');
         $this->rows['param'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            //->setConnect('option_vid', 'print_vid')
-            //->setModelLink('get_vid', 'vid_id')
-            ->setConnect(Param::class, 'get_param')
-            ->setAttached()->setUserSelect();
+            ->setModels(Catalog::class, Param::class)->setAllowCreate();
 
         $row = new FormHidden('user_id', 'user_id');
         $this->rows['user_id'] = $row->setDefaultValue(NULL)->setFillable();

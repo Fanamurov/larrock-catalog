@@ -2,13 +2,16 @@
 
 namespace Larrock\ComponentCatalog\Models;
 
+use Larrock\ComponentCatalog\CatalogComponent;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
+use Larrock\ComponentCategory\Models\Category;
 use Larrock\ComponentDiscount\Helpers\DiscountHelper;
 use Larrock\Core\Component;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\Core\Helpers\Plugins\RenderPlugins;
+use Larrock\Core\Models\Link;
 use Larrock\Core\Traits\GetLink;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
@@ -167,21 +170,29 @@ class Catalog extends Model implements HasMediaConversions
         return $this->config;
     }
 
+    /**
+     * Alias
+     * @return mixed
+     */
     public function get_category()
     {
-        return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id');
+        return $this->getLink(LarrockCategory::getModelName());
     }
 
+    /**
+     * Alias
+     * @return mixed
+     */
     public function getCategoryActive()
     {
-        return $this->belongsToMany(LarrockCategory::getModelName(), 'category_catalog', 'catalog_id', 'category_id')->where('category.active', '=', 1);
+        return $this->getLink(LarrockCategory::getModelName())->where(LarrockCategory::getTable() .'.active', '=', 1);
     }
 
     public function getFullUrlAttribute()
     {
         return Cache::remember('url_catalog'. $this->id, 1440, function() {
             $url = '/catalog';
-            foreach ($this->get_category()->first()->parent_tree as $category){
+            foreach ($this->getLink(LarrockCategory::getModelName())->first()->parent_tree as $category){
                 $url .= '/'. $category->url;
             }
             $url .= '/'. $this->url;
@@ -191,7 +202,7 @@ class Catalog extends Model implements HasMediaConversions
 
     public function getFullUrlCategoryAttribute()
     {
-        if($get_category = $this->get_category->first()){
+        if($get_category = $this->getLink(LarrockCategory::getModelName())->first()){
             return $get_category->full_url;
         }
         return NULL;
@@ -227,11 +238,6 @@ class Catalog extends Model implements HasMediaConversions
     {
         $discountHelper = new DiscountHelper();
         return $discountHelper->getCostDiscount($this);
-    }
-
-    public function get_param()
-    {
-        return $this->belongsToMany(Param::class, 'option_param_link', 'catalog_id', 'param_id');
     }
 
         /**

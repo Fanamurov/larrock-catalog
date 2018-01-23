@@ -297,7 +297,7 @@ class CatalogController extends Controller
      */
     public function getItem($item)
     {
-        if(config('larrock.catalog.ShowItemPage', false) !== true){
+        if(config('larrock.catalog.ShowItemPage', true) !== true){
             return abort(404, 'Страница товара отключена');
         }
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discounts')){
