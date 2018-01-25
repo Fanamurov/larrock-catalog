@@ -95,7 +95,7 @@ class CatalogComponent extends Component
 
         $row = new FormTags('param', 'Параметры товара');
         $this->rows['param'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setModels(Catalog::class, Param::class)->setAllowCreate();
+            ->setModels(Catalog::class, Param::class)->setAllowCreate()->setCostValue();
 
         $row = new FormHidden('user_id', 'user_id');
         $this->rows['user_id'] = $row->setDefaultValue(NULL)->setFillable();
