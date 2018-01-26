@@ -12,7 +12,8 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
         <div class="uk-grid">
             <div class="uk-width-1-1 uk-width-medium-1-2 uk-width-large-1-3">
                 <div class="catalogImage">
-                    <a data-fancybox="gallery" data-caption="{{ $data->title }}" href="{{ $data->first_image }}"><img src="{{ $data->first_image }}" class="catalogImage all-width" itemprop="image"></a>
+                    <a data-fancybox="gallery" data-caption="{{ $data->title }}" href="{{ $data->first_image }}">
+                        <img src="{{ $data->first_image }}" class="catalogImage all-width" itemprop="image"></a>
                 </div>
             </div>
             <div class="uk-width-1-1 uk-width-medium-1-2 uk-width-large-2-3">
@@ -23,6 +24,16 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                         @foreach($app->rows as $row_key => $row)
                             @if($row->template === 'description' && isset($data->{$row_key}) && !empty($data->{$row_key}))
                                 <p><strong>{{ $row->title }}:</strong> {{ $data->{$row_key} }}</p>
+                            @endif
+                            @if(isset($row->costValue) && $row->costValue)
+                                <p>Варианты поставки:</p>
+                                <ul class="uk-list">
+                                    @foreach($data->getCostLink(\Larrock\ComponentCatalog\Models\Param::class) as $param)
+                                        @if($loop->first) @php $data->cost = $param->cost @endphp @endif
+                                        <li><input type="checkbox" name="costValue" @if($loop->first) checked @endif>
+                                            {{ $param->title }} - {{ $param->cost }} {{ $data->what }}</li>
+                                    @endforeach
+                                </ul>
                             @endif
                         @endforeach
                     </div>
@@ -41,7 +52,7 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                     @endif
                 </div>
                 @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
-                    <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast" data-id="{{ $data->id }}">
+                    <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast" data-id="{{ $data->id }}" data-cost="{{ $data->cost }}">
                         Добавить в корзину
                     </div>
                 @endif

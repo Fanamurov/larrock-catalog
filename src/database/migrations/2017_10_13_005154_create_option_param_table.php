@@ -30,5 +30,4 @@ class CreateOptionParamTable extends Migration {
 	{
 		Schema::dropIfExists('option_param');
 	}
-
 }
