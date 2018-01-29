@@ -30,8 +30,9 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                                 <ul class="uk-list">
                                     @foreach($data->getCostLink(\Larrock\ComponentCatalog\Models\Param::class) as $param)
                                         @if($loop->first) @php $data->cost = $param->cost @endphp @endif
-                                        <li><input type="checkbox" name="costValue" @if($loop->first) checked @endif>
-                                            {{ $param->title }} - {{ $param->cost }} {{ $data->what }}</li>
+                                        <li><label class="changeCostValue">
+                                                <input value="{{ $param->cost }}" data-costValueId="{{ $param->id }}" type="radio" name="costValue" @if($loop->first) checked @endif>
+                                            {{ $param->title }} - {{ $param->cost }} {{ $data->what }}</label></li>
                                     @endforeach
                                 </ul>
                             @endif
@@ -45,14 +46,15 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                         <meta itemprop="priceCurrency" content="RUB">
                         <link itemprop="availability" href="http://schema.org/PreOrder">
                     @else
-                        Цена: <span class="default-cost" itemprop="price">{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
+                        Цена: <span class="default-cost" itemprop="price"><span class="cost_value">{{ $data->cost }}</span> <span class="what">{{ $data->what }}</span></span>
                         <meta itemprop="price" content="{{ $data->cost }}">
                         <meta itemprop="priceCurrency" content="RUB">
                         <link itemprop="availability" href="http://schema.org/InStock">
                     @endif
                 </div>
                 @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
-                    <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast" data-id="{{ $data->id }}" data-cost="{{ $data->cost }}">
+                    <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast"
+                         data-id="{{ $data->id }}" data-cost="{{ $data->cost }}" data-costValueId="">
                         Добавить в корзину
                     </div>
                 @endif
