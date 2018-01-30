@@ -7,15 +7,15 @@
         <img src="{{ $data->first_image }}" class="catalogImage max-width pointer" data-id="{{ $data->id }}" itemprop="image">
         @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
             <img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" title="Добавить в корзину" class="add_to_cart_fast pointer icon_cart"
-                 data-id="{{ $data->id }}" width="40" height="25">
+                 data-id="{{ $data->id }}" data-costValueId="{{ $data->first_cost_value_id }}" width="40" height="25">
         @endif
         <div class="cost text-center" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
             @if($data->cost_old > 0)
                 <span class="old-cost">{{ $data->cost_old }}</span>
             @endif
             @if($data->cost > 0)
-                <span class="default-cost">{{ $data->cost }} <span class="what">{{ $data->what }}</span></span>
-                <meta itemprop="price" content="{{ $data->cost }}">
+                <span class="default-cost">{{ $data->first_cost_value }} <span class="what">{{ $data->what }}</span></span>
+                <meta itemprop="price" content="{{ $data->first_cost_value }}">
                 <meta itemprop="priceCurrency" content="RUB">
                 <link itemprop="availability" href="http://schema.org/InStock">
             @else
@@ -38,6 +38,14 @@
             @foreach($app->rows as $row_key => $row)
                 @if($row->template && $row->template === 'in_card' && isset($data->{$row_key}) && !empty($data->{$row_key}))
                     <p class="catalog-d-{{ $row_key }}">{{ $data->{$row_key} }}</p>
+                @endif
+                @if(isset($row->costValue) && $row->costValue && count($data->cost_values) > 0)
+                    <p>Варианты поставки:</p>
+                    <ul class="uk-list">
+                        @foreach($data->cost_values as $param)
+                            <li>{{ $param->title }} - {{ $param->cost }} {{ $data->what }}</li>
+                        @endforeach
+                    </ul>
                 @endif
             @endforeach
         </div>

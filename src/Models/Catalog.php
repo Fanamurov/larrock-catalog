@@ -240,9 +240,8 @@ class Catalog extends Model implements HasMediaConversions
         return $discountHelper->getCostDiscount($this);
     }
 
-        /**
+     /**
      * Замена тегов плагинов на их данные
-     *
      * @return mixed
      */
     public function getShortRenderAttribute()
@@ -261,7 +260,6 @@ class Catalog extends Model implements HasMediaConversions
 
     /**
      * Замена тегов плагинов на их данные
-     *
      * @return mixed
      */
     public function getDescriptionRenderAttribute()
@@ -276,5 +274,13 @@ class Catalog extends Model implements HasMediaConversions
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;
         });
+    }
+
+    public function addToCart($qty = 1, $options = [])
+    {
+        dd($this->config);
+        $this->getCostLink();
+        Cart::instance('main')->add($id, $this->title, $qty, $this->cost, $options)->associate(LarrockCatalog::getModelName());
+        dd($this);
     }
 }

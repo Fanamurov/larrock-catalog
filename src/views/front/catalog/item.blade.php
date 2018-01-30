@@ -25,11 +25,10 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                             @if($row->template === 'description' && isset($data->{$row_key}) && !empty($data->{$row_key}))
                                 <p><strong>{{ $row->title }}:</strong> {{ $data->{$row_key} }}</p>
                             @endif
-                            @if(isset($row->costValue) && $row->costValue)
+                            @if(isset($row->costValue) && $row->costValue && count($data->cost_values) > 0)
                                 <p>Варианты поставки:</p>
                                 <ul class="uk-list">
                                     @foreach($data->cost_values as $param)
-                                        @if($loop->first) @php $data->cost = $param->cost @endphp @endif
                                         <li><label class="changeCostValue">
                                                 <input value="{{ $param->cost }}" data-costValueId="{{ $param->id }}" type="radio" name="costValue" @if($loop->first) checked @endif>
                                             {{ $param->title }} - {{ $param->cost }} {{ $data->what }}</label></li>
@@ -46,15 +45,15 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                         <meta itemprop="priceCurrency" content="RUB">
                         <link itemprop="availability" href="http://schema.org/PreOrder">
                     @else
-                        Цена: <span class="default-cost" itemprop="price"><span class="cost_value">{{ $data->cost }}</span> <span class="what">{{ $data->what }}</span></span>
-                        <meta itemprop="price" content="{{ $data->cost }}">
+                        Цена: <span class="default-cost" itemprop="price"><span class="cost_value">{{ $data->first_cost_value }}</span> <span class="what">{{ $data->what }}</span></span>
+                        <meta itemprop="price" content="{{ $data->first_cost_value }}">
                         <meta itemprop="priceCurrency" content="RUB">
                         <link itemprop="availability" href="http://schema.org/InStock">
                     @endif
                 </div>
                 @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
                     <div class="add-to-cart uk-button uk-button-large uk-button-primary add_to_cart_fast"
-                         data-id="{{ $data->id }}" data-cost="{{ $data->cost }}" data-costValueId="">
+                         data-id="{{ $data->id }}" data-costValueId="{{ $data->first_cost_value_id }}">
                         Добавить в корзину
                     </div>
                 @endif
