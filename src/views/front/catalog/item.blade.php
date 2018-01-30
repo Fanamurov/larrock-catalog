@@ -28,7 +28,7 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                             @if(isset($row->costValue) && $row->costValue)
                                 <p>Варианты поставки:</p>
                                 <ul class="uk-list">
-                                    @foreach($data->getCostLink(\Larrock\ComponentCatalog\Models\Param::class) as $param)
+                                    @foreach($data->cost_values as $param)
                                         @if($loop->first) @php $data->cost = $param->cost @endphp @endif
                                         <li><label class="changeCostValue">
                                                 <input value="{{ $param->cost }}" data-costValueId="{{ $param->id }}" type="radio" name="costValue" @if($loop->first) checked @endif>
