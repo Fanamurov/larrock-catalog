@@ -28,10 +28,10 @@
     </div>
     <div class="catalogShort">
         <h5 itemprop="name">
-            @if(config('larrock.catalog.ShowItemPage') === true)
-                <a href="{{ $data->full_url }}">{{ $data->title }}</a>
+            @if(config('larrock::catalog.ShowItemPage', TRUE) === TRUE)
+                <a href="{{ $data->full_url }}">{{ $data->title }} @if($data->first_cost_value_title) ({{ $data->first_cost_value_title }}) @endif</a>
             @else
-                {{ $data->title }}
+                {{ $data->title }} @if($data->first_cost_value_title) ({{ $data->first_cost_value_title }}) @endif
             @endif
         </h5>
         <div class="catalog-descriptions-rows" itemprop="description">
