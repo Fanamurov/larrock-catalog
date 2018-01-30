@@ -28,7 +28,7 @@
     </div>
     <div class="catalogShort">
         <h5 itemprop="name">
-            @if(config('larrock::catalog.ShowItemPage', TRUE) === TRUE)
+            @if(config('larrock.catalog.ShowItemPage', TRUE) === TRUE)
                 <a href="{{ $data->full_url }}">{{ $data->title }} @if($data->first_cost_value_title) ({{ $data->first_cost_value_title }}) @endif</a>
             @else
                 {{ $data->title }} @if($data->first_cost_value_title) ({{ $data->first_cost_value_title }}) @endif
