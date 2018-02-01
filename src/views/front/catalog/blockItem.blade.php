@@ -3,7 +3,7 @@
     @level(2)
         <a class="admin_edit" href="/admin/catalog/{{ $data->id }}/edit">Edit element</a>
     @endlevel
-    <div class="catalogImage @if(config('larrock.catalog.ShowItemPage') === true) link_block_this @endif" data-href="{{ $data->full_url }}">
+    <div class="catalogImage @if(config('larrock.catalog.ShowItemPage', TRUE) === TRUE) link_block_this @endif" data-href="{{ $data->full_url }}">
         <img src="{{ $data->first_image }}" class="catalogImage max-width pointer" data-id="{{ $data->id }}" itemprop="image">
         @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
             <img src="/_assets/_front/_images/icons/icon_cart.png" alt="Добавить в корзину" title="Добавить в корзину" class="add_to_cart_fast pointer icon_cart"
@@ -13,7 +13,7 @@
             @if($data->cost_old > 0)
                 <span class="old-cost">{{ $data->cost_old }}</span>
             @endif
-            @if($data->cost > 0)
+            @if($data->first_cost_value > 0)
                 <span class="default-cost">{{ $data->first_cost_value }} <span class="what">{{ $data->what }}</span></span>
                 <meta itemprop="price" content="{{ $data->first_cost_value }}">
                 <meta itemprop="priceCurrency" content="RUB">

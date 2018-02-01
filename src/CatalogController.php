@@ -60,7 +60,7 @@ class CatalogController extends Controller
 
         $data['data'] = Cache::remember('getCategoryOnce'. $select_category.'_'. $request->cookie('perPage', 48), 1440,
             function() use ($select_category, $request){
-            $data['data'] = LarrockCategory::getModel()->whereActive(1)->whereUrl($select_category)->with(['get_child'])->firstOrFail();
+            $data['data'] = LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->whereUrl($select_category)->with(['get_child'])->firstOrFail();
             $data['data']->get_tovarsActive = $data['data']->get_tovarsActive()
                 ->paginate($request->cookie('perPage', config('larrock.catalog.DefaultItemsOnPage', 36)));
             return $data;
@@ -429,14 +429,14 @@ class CatalogController extends Controller
     public function listCatalog($category_url)
     {
         $data = Cache::remember('list_catalog'. $category_url, 1440, function() use ($category_url) {
-            if($data['current'] = LarrockCategory::getModel()->whereUrl($category_url)->whereActive(1)->first()){
-                $data['parent'] = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first();
-                $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereActive(1)->get();
-                $data['next_level'] = LarrockCategory::getModel()->whereParent($data['current']->id)->whereActive(1)->get();
+            if($data['current'] = LarrockCategory::getModel()->whereUrl($category_url)->whereComponent('catalog')->whereActive(1)->first()){
+                $data['parent'] = LarrockCategory::getModel()->whereId($data['current']->parent)->whereComponent('catalog')->whereActive(1)->first();
+                $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereComponent('catalog')->whereActive(1)->get();
+                $data['next_level'] = LarrockCategory::getModel()->whereParent($data['current']->id)->whereComponent('catalog')->whereActive(1)->get();
 
                 $data['parent_level'] = [];
-                if($get_category = LarrockCategory::getModel()->whereId($data['current']->parent)->whereActive(1)->first()){
-                    $data['parent_level'] = LarrockCategory::getModel()->whereParent($get_category->parent)->whereActive(1)->get();
+                if($get_category = LarrockCategory::getModel()->whereId($data['current']->parent)->whereComponent('catalog')->whereActive(1)->first()){
+                    $data['parent_level'] = LarrockCategory::getModel()->whereParent($get_category->parent)->whereComponent('catalog')->whereActive(1)->get();
                 }
             }
             return $data;
