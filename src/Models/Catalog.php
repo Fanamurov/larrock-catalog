@@ -275,12 +275,4 @@ class Catalog extends Model implements HasMediaConversions
             return $render->rendered_html;
         });
     }
-
-    public function addToCart($qty = 1, $options = [])
-    {
-        dd($this->config);
-        $this->getCostLink();
-        Cart::instance('main')->add($id, $this->title, $qty, $this->cost, $options)->associate(LarrockCatalog::getModelName());
-        dd($this);
-    }
 }

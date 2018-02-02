@@ -5,13 +5,8 @@ Route::get('/root', 'Larrock\ComponentCatalog\CatalogController@getCategoryRoot'
 Route::get('/yml.xml', 'Larrock\ComponentCatalog\CatalogController@YML')->name('catalog.yml');
 Route::get('/catalog/all', 'Larrock\ComponentCatalog\CatalogController@getAllTovars')->name('catalog.all');
 
-if(config('larrock.catalog.categoryExpanded', TRUE) === TRUE){
-    Route::get('/catalog/{category}/{category2?}/{category3?}/{category4?}', 'Larrock\ComponentCatalog\CatalogController@getCategoryExpanded')
-        ->name('catalog.category');
-}else{
-    Route::get('/catalog/{category}/{category2?}/{category3?}/{category4?}', 'Larrock\ComponentCatalog\CatalogController@getCategory')
-        ->name('catalog.category');
-}
+Route::get('/catalog/{category}/{category2?}/{category3?}/{category4?}', 'Larrock\ComponentCatalog\CatalogController@getCategory')
+    ->name('catalog.category');
 
 Route::any('/search/catalog/serp/{words?}', 'Larrock\ComponentCatalog\CatalogController@searchResult')->name('catalog.search.words');
 Route::get('/search/catalog', 'Larrock\ComponentCatalog\CatalogController@searchItem')->name('catalog.search');
