@@ -111,10 +111,14 @@ class CatalogComponent extends Component
     public function mergeWizardConfig()
     {
         $data = \Cache::remember('wizard_config', 1440, function(){
-            return Config::whereType('wizard')->whereName('catalog')->first();
+            if($config = !Config::whereType('wizard')->whereName('catalog')->first()){
+                return 'IGNORE';
+            }else{
+                return $config;
+            }
         });
 
-        if($data){
+        if($data && $data !== 'IGNORE'){
             foreach ($data->value as $wizard_key => $wizard_item){
                 if(isset($this->rows[$wizard_item['db']])){
                     if($wizard_item['slug'] && !empty($wizard_item['slug'])){
