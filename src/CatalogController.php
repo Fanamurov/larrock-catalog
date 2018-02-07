@@ -62,6 +62,17 @@ class CatalogController extends Controller
             return $this->getItem($select_category);
         }
 
+        //Проверка разделов из url на опубликованность
+        foreach (\Route::current()->parameters() as $param){
+            if( !$category = LarrockCategory::getModel()->whereUrl($param)->first()){
+                throw new \Exception('Раздел '. $param .' не существует', 404);
+            }else{
+                if($category->active !== 1){
+                    throw new \Exception('Раздел '. $category .' не опубликован', 404);
+                }
+            }
+        }
+
         $data = Cache::rememberForever('getCategoryCatalog'. $select_category, function() use ($select_category) {
             return LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->whereUrl($select_category)
                 ->with(['get_childActive.get_childActive'])->firstOrFail();
@@ -144,6 +155,19 @@ class CatalogController extends Controller
      */
     public function getItem($item)
     {
+        //Проверка разделов из url на опубликованность
+        foreach (\Route::current()->parameters() as $param){
+            if(last(\Route::current()->parameters()) !== $param){
+                if( !$category = LarrockCategory::getModel()->whereUrl($param)->first()){
+                    throw new \Exception('Раздел '. $param .' не существует', 404);
+                }else{
+                    if($category->active !== 1){
+                        throw new \Exception('Раздел '. $category .' не опубликован', 404);
+                    }
+                }
+            }
+        }
+
         if(config('larrock.catalog.ShowItemPage', true) !== true){
             throw new \Exception('Страница товара отключена', 404);
         }
