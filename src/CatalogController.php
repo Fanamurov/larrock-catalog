@@ -31,6 +31,7 @@ class CatalogController extends Controller
      * Вывод списка корневых разделов
      *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
      */
     public function getCategoryRoot()
     {
@@ -51,10 +52,10 @@ class CatalogController extends Controller
     /**
      * Получение конкретного товара/товаров раздела/товаров разделов/списка разделов
      * @param Request $request
-     * @param $category
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
      */
-    public function getCategory(Request $request, $category)
+    public function getCategory(Request $request)
     {
         $select_category = last(\Route::current()->parameters());
 
@@ -141,6 +142,7 @@ class CatalogController extends Controller
      * Вывод страницы товара
      * @param $item
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
      */
     public function getItem($item)
     {
@@ -158,7 +160,9 @@ class CatalogController extends Controller
         }
 
         //Модуль списка разделов справа
-        \View::share('module_listCatalog', $this->listCatalog($data->get_category->first()->url));
+        $listCatalog = new ListCatalog();
+        $select_category = $data->get_category->first()->url;
+        \View::share('module_listCatalog', $listCatalog->listCatalog($select_category));
 
         return view()->first([config('larrock.views.catalog.itemUniq.'. $item, 'larrock::front.catalog.item.'. $item),
             config('larrock.views.catalog.item', 'larrock::front.catalog.item')], ['data' => $data]);
