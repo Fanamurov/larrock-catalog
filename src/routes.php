@@ -40,13 +40,11 @@ Breadcrumbs::register('catalog.index', function($breadcrumbs){
 });
 
 Breadcrumbs::register('catalog.item', function($breadcrumbs, $data){
-    $count_null_level = Cache::remember('count_null_levelCatalog', 1440, function(){
-        return LarrockCategory::getModel()->whereParent(null)->count();
-    });
-
-    foreach ($data->get_category->first()->parent_tree as $key => $item){
-        if(count($data->get_category) === 1 || ($count_null_level !== '1' && $key !== 0)){
-            $breadcrumbs->push($item->title, $item->full_url);
+    foreach ($data->get_category as $category){
+        foreach ($category->parent_tree as $key => $item){
+            if(in_array($item->url, \Route::current()->parameters())){
+                $breadcrumbs->push($item->title, $item->full_url);
+            }
         }
     }
     $breadcrumbs->push($data->title);

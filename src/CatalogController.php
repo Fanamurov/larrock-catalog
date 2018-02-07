@@ -29,23 +29,21 @@ class CatalogController extends Controller
 
     /**
      * Вывод списка корневых разделов
-     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Exception
      */
     public function getCategoryRoot()
     {
         $data = Cache::remember('getTovars_root', 1440, function(){
-            $data['data'] = LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')
+            return LarrockCategory::getModel()->whereLevel(1)->whereActive(1)->whereComponent('catalog')
                 ->orderBy('position', 'DESC')->orderBy('created_at', 'ASC')->get();
-            return $data;
         });
 
-        if(count($data['data']) === 0){
+        if(count($data) === 0){
             throw new \Exception('Catalog categories not found', 404);
         }
 
-        return view(config('larrock.views.catalog.categories', 'larrock::front.catalog.categories'), $data);
+        return view(config('larrock.views.catalog.categories', 'larrock::front.catalog.categories'), ['data' => $data]);
     }
 
 
@@ -153,7 +151,7 @@ class CatalogController extends Controller
 
         foreach ($data->get_category as $item_category){
             foreach ($item_category->parent_tree as $category){
-                if($category->active !== 1){
+                if($category->active !== 1 && in_array($category->url, \Route::current()->parameters())){
                     throw new \Exception('Раздел '. $category->title .' не опубликован', 404);
                 }
             }
@@ -230,29 +228,6 @@ class CatalogController extends Controller
         $response->withCookie(cookie('vid', $request->get('q', 'blocks'), 45000));
         Session::flash('vid', $request->get('q', 'blocks'));
         return $response;
-    }
-
-    /**
-     * Ajax
-     * @param Request $request
-     * @return View|Response
-     */
-    public function getTovar(Request $request)
-    {
-        if($get_tovar = LarrockCatalog::getModel()->whereActive(1)->whereId($request->get('id'))->with(['get_category'])->first()){
-            foreach ($get_tovar->get_category as $item_category){
-                foreach ($item_category->parent_tree as $category){
-                    if($category->active !== 1){
-                        return response('Товар находится в неопубликованном разделе', 404);
-                    }
-                }
-            }
-            if($request->get('in_template', 'true') === 'true'){
-                return view(config('larrock.views.catalog.modal', 'larrock::front.modals.addToCart'), ['data' => $get_tovar, 'app' => new CatalogComponent()]);
-            }
-            return response()->json($get_tovar);
-        }
-        return response('Товар не найден', 404);
     }
 
     /**
