@@ -1,5 +1,5 @@
 <div class="catalogBlockItem uk-width-1-2 uk-width-small-1-3 uk-width-medium-1-4 uk-width-xlarge-1-4 uk-margin-large-bottom uk-position-relative"
-     id="product_{{ $data->id }}" itemscope itemtype="http://schema.org/Product">
+     id="product_{{ $data->id }}" itemscope itemtype="http://schema.org/Product" data-id="{{ $data->id }}">
     @level(2)
         <a class="admin_edit" href="/admin/catalog/{{ $data->id }}/edit">Edit element</a>
     @endlevel
@@ -14,7 +14,7 @@
                 <span class="old-cost">{{ $data->cost_old }}</span>
             @endif
             @if($data->first_cost_value > 0)
-                <span class="default-cost">{{ $data->first_cost_value }} <span class="what">{{ $data->what }}</span></span>
+                <span class="default-cost"><span class="costValue">{{ $data->first_cost_value }}</span> <span class="what">{{ $data->what }}</span></span>
                 <meta itemprop="price" content="{{ $data->first_cost_value }}">
                 <meta itemprop="priceCurrency" content="RUB">
                 <link itemprop="availability" href="http://schema.org/InStock">
@@ -29,9 +29,14 @@
     <div class="catalogShort">
         <h5 itemprop="name">
             @if(config('larrock.catalog.ShowItemPage', TRUE) === TRUE)
-                <a href="{{ $data->full_url }}">{{ $data->title }} @if($data->first_cost_value_title) ({{ $data->first_cost_value_title }}) @endif</a>
+                <a href="{{ $data->full_url }}">
+                    {{ $data->title }}
+                    @if($data->first_cost_value_title)
+                        <span class="costValueTitle">{{ $data->first_cost_value_title }}</span>
+                    @endif
+                </a>
             @else
-                {{ $data->title }} @if($data->first_cost_value_title) ({{ $data->first_cost_value_title }}) @endif
+                {{ $data->title }} @if($data->first_cost_value_title) <span class="costValueTitle">{{ $data->first_cost_value_title }}</span> @endif
             @endif
         </h5>
         <div class="catalog-descriptions-rows" itemprop="description">
@@ -40,12 +45,12 @@
                     <p class="catalog-d-{{ $row_key }}">{{ $data->{$row_key} }}</p>
                 @endif
                 @if(isset($row->costValue) && $row->costValue && count($data->cost_values) > 0)
-                    <p>Варианты поставки:</p>
-                    <ul class="uk-list">
+                    <p>
                         @foreach($data->cost_values as $param)
-                            <li>{{ $param->title }} - {{ $param->cost }} {{ $data->what }}</li>
+                            <span class="changeParamValue @if($loop->first) uk-active @endif" data-tovar-id="{{ $data->id }}"
+                                  data-param="{{ $param->id }}" data-cost="{{ $param->cost }}" data-title="{{ $param->title }}">{{ $param->title }}</span>
                         @endforeach
-                    </ul>
+                    </p>
                 @endif
             @endforeach
         </div>
