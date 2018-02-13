@@ -39,7 +39,7 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                     </div>
                 </div>
                 <div class="cost" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-                    @if($data->cost == 0)
+                    @if($data->first_cost_value == 0)
                         <span class="empty-cost" itemprop="price">цена договорная</span>
                         <meta itemprop="price" content="под заказ">
                         <meta itemprop="priceCurrency" content="RUB">
