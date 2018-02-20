@@ -18,7 +18,7 @@ class RandomCatalogItems
     public function handle($request, Closure $next)
     {
         $show_items = [];
-        $get_categories = Cache::remember('get_categoriesRandomCatalogItems', 1440, function(){
+        $get_categories = Cache::rememberForever('get_categoriesRandomCatalogItems', function(){
             if(config('larrock.catalog.RandomCatalogItems.categories')){
                 return LarrockCategory::getModel()->whereActive(1)
                     ->whereIn(LarrockCategory::getConfig()->table. '.id', config('larrock.catalog.RandomCatalogItems.categories'))

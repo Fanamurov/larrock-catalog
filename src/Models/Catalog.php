@@ -126,7 +126,7 @@ class Catalog extends Model implements HasMediaConversions
      */
     public function __construct(array $attributes = [])
     {
-        $columns = Cache::remember('fillableCatalog', 1440, function(){
+        $columns = Cache::rememberForever('fillableCatalog', function(){
             $columns = \Schema::getColumnListing('catalog');
             $columns = collect($columns)->except(['id', 'created_at', 'updated_at']);
             return $columns->toArray();
@@ -190,7 +190,7 @@ class Catalog extends Model implements HasMediaConversions
 
     public function getFullUrlAttribute()
     {
-        return Cache::remember('url_catalog'. $this->id, 1440, function() {
+        return Cache::rememberForever('url_catalog'. $this->id, function() {
             $url = '/catalog';
             foreach ($this->getLink(LarrockCategory::getModelName())->first()->parent_tree as $category){
                 $url .= '/'. $category->url;
@@ -251,7 +251,7 @@ class Catalog extends Model implements HasMediaConversions
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
 
-        return \Cache::remember($cache_key, 1440, function(){
+        return \Cache::rememberForever($cache_key, function(){
             $renderPlugins = new RenderPlugins($this->short, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;
@@ -269,7 +269,7 @@ class Catalog extends Model implements HasMediaConversions
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
 
-        return \Cache::remember($cache_key, 1440, function(){
+        return \Cache::rememberForever($cache_key, function(){
             $renderPlugins = new RenderPlugins($this->description, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;

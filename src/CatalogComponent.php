@@ -109,7 +109,7 @@ class CatalogComponent extends Component
      */
     public function mergeWizardConfig()
     {
-        $data = \Cache::remember('wizard_config', 1440, function(){
+        $data = \Cache::rememberForever('wizard_config', function(){
             if($config = !Config::whereType('wizard')->whereName('catalog')->first()){
                 return 'IGNORE';
             }
@@ -161,7 +161,7 @@ class CatalogComponent extends Component
 
     public function renderAdminMenu()
     {
-        $count = \Cache::remember('count-data-admin-'. LarrockCatalog::getName(), 1440, function(){
+        $count = \Cache::rememberForever('count-data-admin-'. LarrockCatalog::getName(), function(){
             return LarrockCatalog::getModel()->count(['id']);
         });
         $dropdown = LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
@@ -190,7 +190,7 @@ class CatalogComponent extends Component
 
     public function search($admin = NULL)
     {
-        return Cache::remember('search'. $this->name. $admin, 1440, function() use ($admin){
+        return Cache::rememberForever('search'. $this->name. $admin, function() use ($admin){
             $data = [];
             if($admin){
                 $items = LarrockCatalog::getModel()->with(['get_category'])->get(['id', 'title', 'url']);

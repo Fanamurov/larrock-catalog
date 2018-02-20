@@ -14,7 +14,7 @@ class ListCatalog
      */
     public function listCatalog($category_url)
     {
-        $data = Cache::remember('list_catalog'. $category_url, 1440, function() use ($category_url) {
+        $data = Cache::rememberForever('list_catalog'. $category_url, function() use ($category_url) {
             if($data['current'] = LarrockCategory::getModel()->whereUrl($category_url)->whereComponent('catalog')->whereActive(1)->first()){
                 $data['parent'] = LarrockCategory::getModel()->whereId($data['current']->parent)->whereComponent('catalog')->whereActive(1)->first();
                 $data['current_level'] = LarrockCategory::getModel()->whereParent($data['current']->parent)->whereComponent('catalog')->whereActive(1)->get();

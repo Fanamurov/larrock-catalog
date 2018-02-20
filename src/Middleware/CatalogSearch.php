@@ -17,7 +17,7 @@ class CatalogSearch
      */
     public function handle($request, Closure $next)
     {
-        $data = Cache::remember('catalogSearch', 1440, function(){
+        $data = Cache::rememberForever('catalogSearch', function(){
             $data = [];
             foreach (LarrockCatalog::getModel()->whereActive(1)->with(['get_category'])->get(['id', 'title']) as $item){
                 $data[$item->id]['id'] = $item->id;

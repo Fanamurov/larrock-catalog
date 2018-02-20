@@ -3,6 +3,7 @@
 namespace Larrock\ComponentCatalog\Helpers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Larrock\ComponentCatalog\Facades\LarrockCatalog;
 use Larrock\Core\Models\Link;
 use Cache;
@@ -24,10 +25,10 @@ class Filters
             });
         }
 
-        if(count($request->all()) !== 0){
+        if(\count($request->all()) !== 0){
             $data_query = $data_query->whereHas('getAllLinks', function ($q) use ($request){
                 foreach(LarrockCatalog::getRows() as $row_key => $row_value){
-                    if($row_value->filtered && $request->has($row_key) && is_array($request->get($row_key))){
+                    if($row_value->filtered && $request->has($row_key) && \is_array($request->get($row_key))){
                         if($row_value->attached){
                             $model_param = new $row_value->modelChild;
                             $params = $model_param->whereIn('title', $request->get($row_key))->get();
@@ -49,7 +50,7 @@ class Filters
 
     /**
      * Получение доступных/выбранных фильтров для товаров
-     * @param $data
+     * @param Collection $data
      * @return array
      */
     public function getFilters($data)
@@ -63,7 +64,7 @@ class Filters
         $filters = [];
         //Получаем доступные фильтры
         foreach(LarrockCatalog::getRows() as $row_key => $row_value){
-            if($row_value->filtered && $row_key !== 'category' && (is_string($data->first()->{$row_key}) || is_integer($data->first()->{$row_key}))){
+            if($row_value->filtered && $row_key !== 'category' && (\is_string($data->first()->{$row_key}) || \is_int($data->first()->{$row_key}))){
                 $filters[$row_key] = $data->groupBy($row_key)->keys();
             }
 
@@ -73,6 +74,7 @@ class Filters
                     $links->push(Link::whereIdParent($item->id)->whereModelParent(LarrockCatalog::getModelName())->whereModelChild($row_value->modelChild)->get());
                 }
                 $filters[$row_key] = [];
+                /** @var Collection $links */
                 $links = $links->collapse()->groupBy('id_parent');
                 foreach ($links as $link){
                     foreach ($link as $link_item){
@@ -93,11 +95,12 @@ class Filters
             }
         }
 
-        if(count($filters) > 0){
-            if(count(\Request::all()) === 0){
+        if(\count($filters) > 0){
+            if(\count(\Request::all()) === 0){
                 Cache::forever($cache_key, $filters);
             }
             return $filters;
         }
+        return NULL;
     }
 }

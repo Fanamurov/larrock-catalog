@@ -21,7 +21,7 @@ class Sorters
                 $sort[$key]['data'] = ['asc', 'none', 'desc'];
             }
         }
-        if(count($sort) > 0){
+        if(\count($sort) > 0){
             return $sort;
         }
     }
