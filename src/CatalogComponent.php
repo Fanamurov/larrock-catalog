@@ -7,7 +7,6 @@ use Larrock\ComponentCatalog\Models\Catalog;
 use Larrock\ComponentCatalog\Models\Param;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
-use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
 use Larrock\Core\Helpers\FormBuilder\FormSelect;
@@ -113,9 +112,8 @@ class CatalogComponent extends Component
         $data = \Cache::remember('wizard_config', 1440, function(){
             if($config = !Config::whereType('wizard')->whereName('catalog')->first()){
                 return 'IGNORE';
-            }else{
-                return $config;
             }
+            return $config;
         });
 
         if($data && $data !== 'IGNORE'){
@@ -181,7 +179,7 @@ class CatalogComponent extends Component
     {
         $tree = new Tree();
         if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)->whereComponent('catalog')->whereParent(NULL)->get())){
-            $table = LarrockCategory::getConfig()->table;
+            $table = LarrockCategory::getTable();
 
             return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
                 $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);
@@ -215,7 +213,7 @@ class CatalogComponent extends Component
                     }
                 }
             }
-            if(count($data) === 0){
+            if(\count($data) === 0){
                 return NULL;
             }
             return $data;

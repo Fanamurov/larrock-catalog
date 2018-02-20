@@ -76,7 +76,9 @@ class Filters
                 $links = $links->collapse()->groupBy('id_parent');
                 foreach ($links as $link){
                     foreach ($link as $link_item){
-                        $filters[$row_key][] = $link_item->getFullDataChild()->title;
+                        if($link_item->getFullDataChild()){
+                            $filters[$row_key][] = $link_item->getFullDataChild()->title;
+                        }
                     }
                 }
             }
