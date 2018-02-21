@@ -17,7 +17,7 @@
                         <div class="uk-dropdown" aria-hidden="true">
                             <ul class="uk-nav uk-nav-dropdown">
                                 @foreach($module_listCatalog['current_level'] as $value)
-                                    <li @if(URL::current() === 'http://'.$_SERVER['SERVER_NAME'] . $value->full_url
+                                    <li @if(URL::current() === env('APP_URL') . $value->full_url
                             || $value->full_url === $module_listCatalog['current']->full_url) class="uk-active" @endif>
                                         <a href="{{ $value->full_url }}">{{ $value->title }}</a>
                                     </li>
@@ -29,7 +29,7 @@
             </li>
 
             @foreach($module_listCatalog['next_level'] as $item)
-                <li class="next_level @if(URL::current() === 'http://'.$_SERVER['SERVER_NAME'] . $item->full_url) uk-active @endif">
+                <li class="next_level @if(URL::current() === env('APP_URL') . $item->full_url) uk-active @endif">
                     <h5 class="link_block"><a href="{{ $item->full_url }}">{{ $item->title }}</a></h5>
                 </li>
             @endforeach
@@ -55,7 +55,7 @@
                 </li>
             @endif
             @foreach($module_listCatalog['current_level'] as $item)
-                <li class="next_level @if(URL::current() === 'http://'.$_SERVER['SERVER_NAME'] . $item->full_url) uk-active @endif
+                <li class="next_level @if(URL::current() === env('APP_URL') . $item->full_url) uk-active @endif
                         @if($module_listCatalog['current']->full_url === $item->full_url) uk-active @endif">
                     <h5 class="link_block"><a href="{{ $item->full_url }}">{{ $item->title }}</a></h5>
                 </li>

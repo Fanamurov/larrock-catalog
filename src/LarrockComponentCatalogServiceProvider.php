@@ -5,6 +5,7 @@ namespace Larrock\ComponentCatalog;
 use Illuminate\Support\ServiceProvider;
 use Larrock\ComponentCatalog\Middleware\CatalogSearch;
 use Larrock\ComponentCatalog\Middleware\RandomCatalogItems;
+use Larrock\ComponentCatalog\Middleware\SoputkaCatalogItems;
 
 class LarrockComponentCatalogServiceProvider extends ServiceProvider
 {
@@ -40,5 +41,6 @@ class LarrockComponentCatalogServiceProvider extends ServiceProvider
 
         $this->app['router']->aliasMiddleware('CatalogSearch', CatalogSearch::class);
         $this->app['router']->aliasMiddleware('RandomCatalogItems', RandomCatalogItems::class);
+        $this->app['router']->aliasMiddleware('SoputkaCatalogItems', SoputkaCatalogItems::class);
     }
 }

@@ -4,13 +4,12 @@ namespace Larrock\ComponentCatalog\Middleware;
 
 use Cache;
 use Closure;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
+use LarrockCategory;
 
 class RandomCatalogItems
 {
     /**
      * Handle an incoming request.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed
@@ -21,7 +20,7 @@ class RandomCatalogItems
         $get_categories = Cache::rememberForever('get_categoriesRandomCatalogItems', function(){
             if(config('larrock.catalog.RandomCatalogItems.categories')){
                 return LarrockCategory::getModel()->whereActive(1)
-                    ->whereIn(LarrockCategory::getConfig()->table. '.id', config('larrock.catalog.RandomCatalogItems.categories'))
+                    ->whereIn(LarrockCategory::getTable(). '.id', config('larrock.catalog.RandomCatalogItems.categories'))
                     ->whereComponent('catalog')->get(['id']);
             }
             return LarrockCategory::getModel()->whereActive(1)

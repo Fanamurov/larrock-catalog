@@ -76,6 +76,12 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
             </div>
         </div>
     </div>
+
+    @if(isset($SoputkaCatalogItems) && \count($SoputkaCatalogItems) > 0)
+        <div class="uk-margin-large-top">
+            @include('larrock::front.modules.list.soputka')
+        </div>
+    @endif
 @endsection
 
 @section('front.modules.list.catalog')

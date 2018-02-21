@@ -24,7 +24,7 @@ class CatalogController extends Controller
     public function __construct()
     {
         LarrockCatalog::shareConfig();
-        $this->middleware(LarrockCatalog::combineFrontMiddlewares());
+        $this->middleware(LarrockCatalog::combineFrontMiddlewares(['SoputkaCatalogItems']));
     }
 
     /**
