@@ -31,7 +31,11 @@ Breadcrumbs::register('admin.'. LarrockCatalog::getName() .'.index', function($b
 Breadcrumbs::register('admin.catalog.category', function($breadcrumbs, $data){
     $breadcrumbs->parent('admin.catalog.index');
     foreach($data->parent_tree as $item){
-        $breadcrumbs->push($item->title, '/admin/'. LarrockCatalog::getName() .'/'. $item->id);
+        $active = ' [Не опубликован!]';
+        if($item->active === 1){
+            $active = '';
+        }
+        $breadcrumbs->push($item->title . $active, '/admin/'. LarrockCatalog::getName() .'/'. $item->id);
     }
 });
 

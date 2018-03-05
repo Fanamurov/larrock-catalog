@@ -2,10 +2,10 @@
 
 namespace Larrock\ComponentCatalog;
 
-use Larrock\ComponentCatalog\Facades\LarrockCatalog;
+use LarrockCatalog;
 use Larrock\ComponentCatalog\Models\Catalog;
 use Larrock\ComponentCatalog\Models\Param;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
+use LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
 use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
@@ -53,49 +53,50 @@ class CatalogComponent extends Component
         $row = new FormInput('title', 'Название товара');
         $this->rows['title'] = $row->setValid('max:255|required')->setTypo()->setFillable();
 
+        $row = new FormTags('param', 'Варианты поставки товара');
+        $this->rows['param'] = $row->setModels(Catalog::class, Param::class)
+            ->setAllowCreate()->setCostValue()->setFiltered()->setHelp('Данное поле переопределяет цену товара. 
+            Стандартное поле "Цена" учитываться не будет. Внесение цен модификаций товара доступно после сохранения');
+
+        $row = new FormInput('cost', 'Цена');
+        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setInTableAdminAjaxEditable()->setSorted()->setFillable();
+
+        $row = new FormInput('cost_old', 'Старая цена');
+        $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setFillable()->setInTableAdminAjaxEditable();
+
+        $row = new FormSelect('what', 'Мера измерений');
+        $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setConnect(Catalog::class, NULL, 'what')->setDefaultValue('руб./шт')->setFillable();
+
         $row = new FormTextarea('short', 'Короткое описание');
         $this->rows['short'] = $row->setTypo()->setFillable();
 
         $row = new FormTextarea('description', 'Полное описание');
         $this->rows['description'] = $row->setTypo()->setFillable();
 
-        $row = new FormInput('cost', 'Цена');
-        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setInTableAdminAjaxEditable()->setSorted()->setFillable();
-
-        $row = new FormInput('cost_old', 'Старая цена');
-        $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setFillable();
-
-        $row = new FormSelect('what', 'Мера измерений');
-        $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
-            ->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
-            ->setConnect(Catalog::class)->setDefaultValue('руб./шт')->setFillable();
-
         $row = new FormInput('manufacture', 'Производитель');
-        $this->rows['manufacture'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+        $this->rows['manufacture'] = $row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
             ->setFillable()->setFiltered()->setTemplate('in_card');
 
         $row = new FormInput('articul', 'Артикул');
-        $this->rows['articul'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+        $this->rows['articul'] = $row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
             ->setTemplate('in_card')->setFillable();
 
         $row = new FormInput('description_link', 'ID материала Feed для описания');
-        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')
+        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
             ->setFillable();
 
         $row = new FormCheckbox('label_new', 'Метка нового');
-        $this->rows['label_new'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
+        $this->rows['label_new'] = $row->setTab('tags','Метки')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
 
         $row = new FormCheckbox('label_popular', 'Метка популярное');
-        $this->rows['label_popular'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
+        $this->rows['label_popular'] = $row->setTab('tags','Метки')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
 
         $row = new FormInput('label_sale', 'Метка скидка (%)');
-        $this->rows['label_sale'] = $row->setCssClassGroup('uk-width-1-2 uk-width-medium-1-3 uk-width-large-1-4')->setFillable();
-
-        $row = new FormTags('param', 'Параметры товара');
-        $this->rows['param'] = $row->setModels(Catalog::class, Param::class)
-            ->setAllowCreate()->setCostValue()->setFiltered();
+        $this->rows['label_sale'] = $row->setTab('tags','Метки')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
 
         $row = new FormHidden('user_id', 'user_id');
         $this->rows['user_id'] = $row->setDefaultValue(NULL)->setFillable();
@@ -200,7 +201,6 @@ class CatalogComponent extends Component
             foreach ($items as $item){
                 $data[$item->id]['id'] = $item->id;
                 $data[$item->id]['title'] = $item->title;
-                $data[$item->id]['full_url'] = $item->full_url;
                 $data[$item->id]['component'] = $this->name;
                 $data[$item->id]['category'] = NULL;
                 if($admin){
@@ -218,5 +218,13 @@ class CatalogComponent extends Component
             }
             return $data;
         });
+    }
+
+    public function toDashboard()
+    {
+        $data = Cache::rememberForever('LarrockCatalogItemsDashboard', function(){
+            return LarrockCatalog::getModel()->latest('updated_at')->take(5)->get();
+        });
+        return view('larrock::admin.dashboard.catalog', ['component' => LarrockCatalog::getConfig(), 'data' => $data]);
     }
 }

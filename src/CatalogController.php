@@ -2,22 +2,18 @@
 
 namespace Larrock\ComponentCatalog;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cookie;
+use Cookie;
 use Larrock\ComponentCatalog\Helpers\Filters;
 use Larrock\ComponentCatalog\Helpers\ListCatalog;
 use Larrock\ComponentCatalog\Helpers\Sorters;
-use Larrock\ComponentCatalog\Models\Catalog;
-use Larrock\ComponentCatalog\Models\Param;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
+use LarrockCategory;
 use Illuminate\Routing\Controller;
 use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Larrock\Core\Helpers\Tree;
-use Larrock\Core\Models\Link;
 use Session;
-use Larrock\ComponentCatalog\Facades\LarrockCatalog;
+use LarrockCatalog;
 
 class CatalogController extends Controller
 {
@@ -55,14 +51,14 @@ class CatalogController extends Controller
      */
     public function getCategory(Request $request)
     {
-        $select_category = last(\Route::current()->parameters());
+        $select_item = last(\Route::current()->parameters());
 
         //Проверка разделов из url на опубликованность
         foreach (\Route::current()->parameters() as $param){
             if( !$category = LarrockCategory::getModel()->whereUrl($param)->first()){
                 //Может это товар?
-                if(LarrockCatalog::getModel()->whereUrl($select_category)->first()){
-                    return $this->getItem($select_category);
+                if(LarrockCatalog::getModel()->whereUrl($select_item)->first()){
+                    return $this->getItem($select_item);
                 }
                 throw new \Exception('Раздел '. $param .' не существует', 404);
             }
@@ -71,12 +67,12 @@ class CatalogController extends Controller
             }
         }
 
-        $data = Cache::rememberForever('getCategoryCatalog'. $select_category, function() use ($select_category) {
-            return LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->whereUrl($select_category)
+        $data = Cache::rememberForever('getCategoryCatalog'. $select_item, function() use ($select_item) {
+            return LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->whereUrl($select_item)
                 ->with(['get_childActive.get_childActive'])->first();
         });
         if( !$data){
-            throw new \Exception('Раздел с url:'. $select_category .' не найден', 404);
+            throw new \Exception('Раздел с url:'. $select_item .' не найден', 404);
         }
 
         foreach ($data->parent_tree as $category){
@@ -86,7 +82,7 @@ class CatalogController extends Controller
         }
 
         if(config('larrock.catalog.categoryExpanded', TRUE) === TRUE) {
-            $cache_key = sha1('categoryArrayExp'. $select_category);
+            $cache_key = sha1('categoryArrayExp'. $select_item);
             $category_array = Cache::rememberForever($cache_key, function() use ($data){
                 $category_array = collect([]);
                 foreach($data->get_childActive as $value){
@@ -116,7 +112,7 @@ class CatalogController extends Controller
         \View::share('sort', $sorters->getSorts());
 
         $listCatalog = new ListCatalog();
-        \View::share('module_listCatalog', $listCatalog->listCatalog($select_category));
+        \View::share('module_listCatalog', $listCatalog->listCatalog($select_item));
 
         $data->get_tovarsActive = $data->get_tovarsActive->select('catalog.*')
             ->paginate($request->cookie('perPage', config('larrock.catalog.DefaultItemsOnPage', 36)));
@@ -126,7 +122,7 @@ class CatalogController extends Controller
                 throw new \Exception('Товаров в разделе не найдено', 404);
             }
 
-            if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_category)){
+            if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_item)){
                 $view = config('larrock.views.catalog.categories', 'larrock::front.catalog.categories');
             }
             return view($view, ['data' => $data]);
@@ -136,7 +132,7 @@ class CatalogController extends Controller
             $data->get_tovarsActive->setPath($data->full_url);
         }
 
-        if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_category)){
+        if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_item)){
             if($request->cookie('vid', config('larrock.catalog.categoriesView'), 'blocks') === 'table'){
                 $view = config('larrock.views.catalog.categoriesTable', 'larrock::front.catalog.items-table');
             }else{
@@ -224,6 +220,7 @@ class CatalogController extends Controller
     /**
      * @param Request $request
      * @return Response
+     * @throws \InvalidArgumentException
      */
     public function editPerPage(Request $request)
     {
@@ -236,6 +233,7 @@ class CatalogController extends Controller
     /**
      * @param Request $request
      * @return Response
+     * @throws \InvalidArgumentException
      */
     public function sort(Request $request)
     {
@@ -248,6 +246,7 @@ class CatalogController extends Controller
     /**
      * @param Request $request
      * @return Response
+     * @throws \InvalidArgumentException
      */
     public function vid(Request $request)
     {

@@ -27,10 +27,13 @@ class RandomCatalogItems
                 ->whereLevel(config('larrock.catalog.RandomCatalogItems.level', 3))
                 ->whereComponent('catalog')->get(['id']);
         });
-        $select_categories = $get_categories->random(config('larrock.catalog.RandomCatalogItems.items', 3));
-        foreach ($select_categories as $category){
-            if($category->get_tovarsActive()->count() > 0){
-                $show_items[] = $category->get_tovarsActive()->get()->random(1)->first();
+
+        if($get_categories && count($get_categories) > 0){
+            $select_categories = $get_categories->random(config('larrock.catalog.RandomCatalogItems.items', 3));
+            foreach ($select_categories as $category){
+                if($category->get_tovarsActive()->count() > 0){
+                    $show_items[] = $category->get_tovarsActive()->get()->random(1)->first();
+                }
             }
         }
         \View::share('RandomCatalogItems', $show_items);

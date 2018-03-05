@@ -2,21 +2,17 @@
 
 namespace Larrock\ComponentCatalog\Models;
 
-use Larrock\ComponentCatalog\CatalogComponent;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
-use Larrock\ComponentCategory\Models\Category;
-use Larrock\ComponentDiscount\Helpers\DiscountHelper;
+use LarrockCategory;
 use Larrock\Core\Component;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
-use Larrock\ComponentFeed\Facades\LarrockFeed;
+use LarrockFeed;
 use Larrock\Core\Helpers\Plugins\RenderPlugins;
-use Larrock\Core\Models\Link;
 use Larrock\Core\Traits\GetLink;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
-use Larrock\ComponentCatalog\Facades\LarrockCatalog;
+use LarrockCatalog;
 use Larrock\Core\Traits\GetFilesAndImages;
 use Larrock\Core\Traits\GetSeo;
 
@@ -92,6 +88,9 @@ use Larrock\Core\Traits\GetSeo;
  * @property integer $label_new
  * @property integer $label_popular
  * @property integer $user_id
+ * @property mixed $description_render
+ * @property mixed|null $description_item_on_link
+ * @property mixed $short_render
  * @property-read mixed $cut_description
  * @property-read mixed $cost_discount
  * @property-read mixed $sizes
@@ -126,6 +125,7 @@ class Catalog extends Model implements HasMediaConversions
      */
     public function __construct(array $attributes = [])
     {
+        parent::__construct();
         $columns = Cache::rememberForever('fillableCatalog', function(){
             $columns = \Schema::getColumnListing('catalog');
             $columns = collect($columns)->except(['id', 'created_at', 'updated_at']);
@@ -232,12 +232,6 @@ class Catalog extends Model implements HasMediaConversions
             return str_limit(strip_tags($this->short), 150, '...');
         }
         return str_limit(strip_tags($this->description), 150, '...<a href="'. $this->full_url .'">далее</a>');
-    }
-
-    public function getCostDiscountAttribute()
-    {
-        $discountHelper = new DiscountHelper();
-        return $discountHelper->getCostDiscount($this);
     }
 
      /**
