@@ -6,7 +6,7 @@
                 <table class="uk-table uk-table-small uk-table-hover uk-table-divider">
                     @foreach($data as $value)
                         <tr>
-                            <td width="55">
+                            <td width="55" class="uk-visible@m">
                                 <a href="/admin/{{ $component->name }}/{{ $value->id }}/edit">
                                     <img src="{{ $value->first_image_110 }}" alt="Photo">
                                 </a>
