@@ -69,7 +69,8 @@ class CatalogComponent extends Component
         $row = new FormSelect('what', 'Мера измерений');
         $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
             ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setConnect(Catalog::class, NULL, 'what')->setDefaultValue('руб./шт')->setFillable();
+            ->setConnect(Catalog::class, NULL, 'what')
+            ->setDefaultValue('руб./шт')->setFillable();
 
         $row = new FormTextarea('short', 'Короткое описание');
         $this->rows['short'] = $row->setTypo()->setFillable();
@@ -90,13 +91,16 @@ class CatalogComponent extends Component
             ->setFillable();
 
         $row = new FormCheckbox('label_new', 'Метка нового');
-        $this->rows['label_new'] = $row->setTab('tags','Метки')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
+        $this->rows['label_new'] = $row->setTab('tags','Метки')
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
 
         $row = new FormCheckbox('label_popular', 'Метка популярное');
-        $this->rows['label_popular'] = $row->setTab('tags','Метки')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
+        $this->rows['label_popular'] = $row->setTab('tags','Метки')
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
 
         $row = new FormInput('label_sale', 'Метка скидка (%)');
-        $this->rows['label_sale'] = $row->setTab('tags','Метки')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
+        $this->rows['label_sale'] = $row->setTab('tags','Метки')
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
 
         $row = new FormHidden('user_id', 'user_id');
         $this->rows['user_id'] = $row->setDefaultValue(NULL)->setFillable();
@@ -165,7 +169,10 @@ class CatalogComponent extends Component
         $count = \Cache::rememberForever('count-data-admin-'. LarrockCatalog::getName(), function(){
             return LarrockCatalog::getModel()->count(['id']);
         });
-        $dropdown = LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        $dropdown = Cache::rememberForever('dropdownAdminMenu'. LarrockCatalog::getName(), function () {
+            return LarrockCategory::getModel()->whereComponent('catalog')->whereLevel(1)
+                ->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        });
         $push = collect();
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-wizard')){
             $push->put('Wizard - импорт товаров', '/admin/wizard');
@@ -173,13 +180,15 @@ class CatalogComponent extends Component
         if(file_exists(base_path(). '/vendor/fanamurov/larrock-discount')){
             $push->put('Скидки', '/admin/discount');
         }
-        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockCatalog::getConfig(), 'url' => '/admin/'. LarrockCatalog::getName(), 'dropdown' => $dropdown, 'push' => $push]);
+        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockCatalog::getConfig(),
+            'url' => '/admin/'. LarrockCatalog::getName(), 'dropdown' => $dropdown, 'push' => $push]);
     }
 
     public function createSitemap()
     {
         $tree = new Tree();
-        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)->whereComponent('catalog')->whereParent(NULL)->get())){
+        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
+            ->whereComponent('catalog')->whereParent(NULL)->get())){
             $table = LarrockCategory::getTable();
 
             return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
