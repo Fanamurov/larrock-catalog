@@ -15,6 +15,7 @@ use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
 use LarrockCatalog;
 use Larrock\Core\Traits\GetFilesAndImages;
 use Larrock\Core\Traits\GetSeo;
+use Spatie\MediaLibrary\Media;
 
 /**
  * App\Models\Catalog
@@ -267,6 +268,32 @@ class Catalog extends Model implements HasMediaConversions
             $renderPlugins = new RenderPlugins($this->description, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;
+        });
+    }
+
+    /**
+     * Перезаписываем метод из HasMediaTrait, добавляем кеш
+     * @param string $collectionName
+     * @return mixed
+     */
+    public function loadMedia(string $collectionName)
+    {
+        $cache_key = sha1('loadMediaCache'. $collectionName . $this->id . $this->getConfig()->getModelName());
+        return Cache::rememberForever($cache_key, function () use ($collectionName) {
+            $collection = $this->exists
+                ? $this->media
+                : collect($this->unAttachedMediaLibraryItems)->pluck('media');
+
+            return $collection
+                ->filter(function (Media $mediaItem) use ($collectionName) {
+                    if ($collectionName == '') {
+                        return true;
+                    }
+
+                    return $mediaItem->collection_name === $collectionName;
+                })
+                ->sortBy('order_column')
+                ->values();
         });
     }
 }
