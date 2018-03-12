@@ -69,7 +69,7 @@ class CatalogController extends Controller
 
         $data = Cache::rememberForever('getCategoryCatalog'. $select_item, function() use ($select_item) {
             return LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->whereUrl($select_item)
-                ->with(['get_childActive.get_childActive'])->first();
+                ->with(['getChildActive.getChildActive'])->first();
         });
         if( !$data){
             throw new \Exception('Раздел с url:'. $select_item .' не найден', 404);
@@ -85,10 +85,10 @@ class CatalogController extends Controller
             $cache_key = sha1('categoryArrayExp'. $select_item);
             $category_array = Cache::rememberForever($cache_key, function() use ($data){
                 $category_array = collect([]);
-                foreach($data->get_childActive as $value){
+                foreach($data->getChildActive as $value){
                     if(config('larrock.catalog.categoryExpanded', TRUE) === TRUE) {
                         $category_array->push($value->id);
-                        foreach ($value->get_childActive as $child_active) {
+                        foreach ($value->getChildActive as $child_active) {
                             $category_array->push($child_active->id);
                         }
                     }
@@ -104,20 +104,20 @@ class CatalogController extends Controller
 
         //Получаем товары в выборке разделов
         $filters = new Filters();
-        $data->get_tovarsActive = $filters->getTovarsByFilters($request, $category_array);
-        \View::share('filters', $filters->getFilters($data->get_tovarsActive->get()));
+        $data->getGoodsActive = $filters->getTovarsByFilters($request, $category_array);
+        \View::share('filters', $filters->getFilters($data->getGoodsActive->get()));
 
         $sorters = new Sorters();
-        $data->get_tovarsActive = $sorters->applySorts($data->get_tovarsActive, $request);
+        $data->getGoodsActive = $sorters->applySorts($data->getGoodsActive, $request);
         \View::share('sort', $sorters->getSorts());
 
         $listCatalog = new ListCatalog();
         \View::share('module_listCatalog', $listCatalog->listCatalog($select_item));
 
-        $data->get_tovarsActive = $data->get_tovarsActive->select('catalog.*')
+        $data->getGoodsActive = $data->getGoodsActive->select('catalog.*')
             ->paginate($request->cookie('perPage', config('larrock.catalog.DefaultItemsOnPage', 36)));
 
-        if(\count($data->get_tovarsActive) === 0){
+        if(\count($data->getGoodsActive) === 0){
             if(config('larrock.catalog.categoryExpanded', TRUE) === TRUE) {
                 throw new \Exception('Товаров в разделе не найдено', 404);
             }
@@ -129,7 +129,7 @@ class CatalogController extends Controller
         }
 
         if(\count($category_array) > 0){
-            $data->get_tovarsActive->setPath($data->full_url);
+            $data->getGoodsActive->setPath($data->full_url);
         }
 
         if( !$view = config('larrock.views.catalog.categoryUniq.'. $select_item)){
@@ -167,7 +167,7 @@ class CatalogController extends Controller
         if(config('larrock.catalog.ShowItemPage', true) !== true){
             throw new \Exception('Страница товара отключена', 404);
         }
-        $data = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'getCategory', 'getImages', 'getFiles'])->first();
+        $data = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['getSeo', 'getCategory', 'getImages', 'getFiles'])->first();
         if( !$data){
             throw new \Exception('Товар с url:'. $item .' не найден', 404);
         }
@@ -205,7 +205,7 @@ class CatalogController extends Controller
 
         //Ищем опубликованные разделы и их опубликованных потомков
         $getActiveCategory = LarrockCategory::getModel()->whereActive(1)->whereComponent('catalog')->whereParent(NULL)
-            ->with(['get_childActive.get_childActive.get_childActive'])->get();
+            ->with(['getChildActive.getChildActive.getChildActive'])->get();
         $tree = new Tree();
         $activeCategory = $tree->listActiveCategories($getActiveCategory);
 
@@ -264,7 +264,7 @@ class CatalogController extends Controller
     {
         $data = Cache::rememberForever('YMLcatalog', function(){
             $getActiveCategory = LarrockCategory::getModel()->whereActive(1)->whereParent(NULL)
-                ->whereComponent('catalog')->with(['get_childActive.get_childActive.get_childActive'])->get();
+                ->whereComponent('catalog')->with(['getChildActive.getChildActive.getChildActive'])->get();
             $tree = new Tree();
             $activeCategory = $tree->listActiveCategories($getActiveCategory);
 

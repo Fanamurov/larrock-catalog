@@ -3,7 +3,7 @@
     @if($seo_midd['url'])
         {{ $seo_midd['url'] }}
     @else
-        {{$seo_midd['catalog_category_prefix']}}{{$data->get_seo->seo_title or
+        {{$seo_midd['catalog_category_prefix']}}{{$data->getSeo->seo_title or
         $data->title }}{{$seo_midd['catalog_category_postfix']}}{{ $seo_midd['postfix_global'] }}
     @endif
 @endsection
@@ -50,7 +50,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($data->get_tovarsActive as $item)
+                    @foreach($data->getGoodsActive as $item)
                         <tr>
                             <td class="col-img"><img src="{{ $item->first_image }}" alt="{{ $item->title }}" class="all-width"></td>
                             <td>
@@ -77,7 +77,7 @@
                 </table>
             </div>
 
-            {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
+            {{ $data->getGoodsActive->links('larrock::front.modules.pagination.uikit') }}
         </li>
         <li>
             <div class="catalogDescriptionTab uk-margin-large-top">

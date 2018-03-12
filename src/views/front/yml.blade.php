@@ -23,9 +23,9 @@
                         <url>{!! env('APP_URL') !!}{{ $value->full_url }}</url>
                         <price>{{ $value->cost }}</price>
                         <currencyId>RUR</currencyId>
-                        <categoryId type="Own">{{ $value->get_category->first()->id }}</categoryId>
+                        <categoryId type="Own">{{ $value->getCategory->first()->id }}</categoryId>
                         <picture>{!! env('APP_URL') !!}{{ $value->first_image }}</picture>
-                        <typePrefix>{{ $value->get_category->first()->title }}</typePrefix>
+                        <typePrefix>{{ $value->getCategory->first()->title }}</typePrefix>
                         @if($value->manufacture)
                             <vendor>{{ $value->manufacture }}</vendor>
                         @else

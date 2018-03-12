@@ -19,10 +19,10 @@ class CatalogSearch
     {
         $data = Cache::rememberForever('catalogSearch', function(){
             $data = [];
-            foreach (LarrockCatalog::getModel()->whereActive(1)->with(['get_category'])->get(['id', 'title']) as $item){
+            foreach (LarrockCatalog::getModel()->whereActive(1)->with(['getCategory'])->get(['id', 'title']) as $item){
                 $data[$item->id]['id'] = $item->id;
                 $data[$item->id]['title'] = $item->title;
-                $data[$item->id]['category'] = $item->get_category->first()->title;
+                $data[$item->id]['category'] = $item->getCategory->first()->title;
             }
             return $data;
         });

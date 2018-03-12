@@ -23,7 +23,7 @@
                 </p>
                 <p><span class="block-module-RandomCatalogItems-cost">{{ $data->first_cost_value }}</span>
                     <span class="block-module-RandomCatalogItems-what">{{ $data->what }}</span></p>
-                <p class="category">Раздел: <a href="{{ $data->get_category()->first()->full_url }}">{{ $data->get_category()->first()->title }}</a></p>
+                <p class="category">Раздел: <a href="{{ $data->getCategory()->first()->full_url }}">{{ $data->getCategory()->first()->title }}</a></p>
             </div>
         </div>
     @endforeach

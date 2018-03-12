@@ -1,5 +1,5 @@
 @extends('larrock::front.main')
-@section('title'){{$seo_midd['catalog_item_prefix']}}{{$data->get_seo->seo_title or
+@section('title'){{$seo_midd['catalog_item_prefix']}}{{$data->getSeo->seo_title or
 $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global'] }}@endsection
 
 @section('content')

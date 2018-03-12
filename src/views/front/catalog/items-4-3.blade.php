@@ -4,7 +4,7 @@
         {{ $seo_midd['url'] }}
     @else
         {{ $seo_midd['catalog_category_prefix'] }}
-        {{ $data->get_seo->seo_title or $data->title }}@foreach(Request::all() as $filter_title)
+        {{ $data->getSeo->seo_title or $data->title }}@foreach(Request::all() as $filter_title)
             @if(is_array($filter_title))
                 @foreach($filter_title as $active_filters_title)
                     {{ $active_filters_title }}
@@ -44,10 +44,10 @@
     <ul id="catalogCategoryContent" class="uk-switcher">
         <li @if( !$data->description_category_on_link) class="uk-active" @endif>
             <div class="catalogPageCategoryItems uk-grid uk-margin-large-top uk-margin-large-bottom">
-                @each('larrock::front.catalog.blockItem', $data->get_tovarsActive, 'data')
+                @each('larrock::front.catalog.blockItem', $data->getGoodsActive, 'data')
             </div>
 
-            {{ $data->get_tovarsActive->links('larrock::front.modules.pagination.uikit') }}
+            {{ $data->getGoodsActive->links('larrock::front.modules.pagination.uikit') }}
         </li>
         <li>
             <div class="catalogDescriptionTab uk-margin-large-top">
