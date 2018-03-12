@@ -28,7 +28,7 @@ class RandomCatalogItems
                 ->whereComponent('catalog')->get(['id']);
         });
 
-        if($get_categories && count($get_categories) > 0){
+        if($get_categories && \count($get_categories) > 0){
             $select_categories = $get_categories->random(config('larrock.catalog.RandomCatalogItems.items', 3));
             foreach ($select_categories as $category){
                 if($category->get_tovarsActive()->count() > 0){

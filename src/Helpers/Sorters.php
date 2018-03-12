@@ -2,7 +2,7 @@
 
 namespace Larrock\ComponentCatalog\Helpers;
 
-use Larrock\ComponentCatalog\Facades\LarrockCatalog;
+use LarrockCatalog;
 use Illuminate\Http\Request;
 
 class Sorters
@@ -24,6 +24,7 @@ class Sorters
         if(\count($sort) > 0){
             return $sort;
         }
+        return null;
     }
 
     public function applySorts($model, Request $request)

@@ -23,7 +23,7 @@ class AdminCatalogController extends Controller
 
     public function getTovar(Request $request)
     {
-        if($get_tovar = LarrockCatalog::getModel()->whereId($request->get('id'))->with(['get_category'])->first()){
+        if($get_tovar = LarrockCatalog::getModel()->whereId($request->get('id'))->with(['getCategory'])->first()){
             if($request->get('in_template') === 'true'){
                 $order = LarrockCart::getModel()->whereOrderId($request->get('order_id'))->first();
                 return view('larrock::admin.cart.getItem-modal', ['order' => $order, 'data' => $get_tovar]);

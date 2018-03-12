@@ -167,12 +167,12 @@ class CatalogController extends Controller
         if(config('larrock.catalog.ShowItemPage', true) !== true){
             throw new \Exception('Страница товара отключена', 404);
         }
-        $data = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'get_category', 'getImages', 'getFiles'])->first();
+        $data = LarrockCatalog::getModel()->whereActive(1)->whereUrl($item)->with(['get_seo', 'getCategory', 'getImages', 'getFiles'])->first();
         if( !$data){
             throw new \Exception('Товар с url:'. $item .' не найден', 404);
         }
 
-        foreach ($data->get_category as $item_category){
+        foreach ($data->getCategory as $item_category){
             foreach ($item_category->parent_tree as $category){
                 if($category->active !== 1 && in_array($category->url, \Route::current()->parameters())){
                     throw new \Exception('Раздел '. $category->title .' не опубликован', 404);
@@ -182,7 +182,7 @@ class CatalogController extends Controller
 
         //Модуль списка разделов справа
         $listCatalog = new ListCatalog();
-        $select_category = $data->get_category->first()->url;
+        $select_category = $data->getCategory->first()->url;
         \View::share('module_listCatalog', $listCatalog->listCatalog($select_category));
 
         return view()->first([config('larrock.views.catalog.itemUniq.'. $item, 'larrock::front.catalog.item.'. $item),
@@ -209,7 +209,7 @@ class CatalogController extends Controller
         $tree = new Tree();
         $activeCategory = $tree->listActiveCategories($getActiveCategory);
 
-        $data['data'] = LarrockCatalog::getModel()->search($words)->whereHas('get_category', function($q) use($activeCategory){
+        $data['data'] = LarrockCatalog::getModel()->search($words)->whereHas('getCategory', function($q) use($activeCategory){
             $q->whereIn(LarrockCategory::getTable() .'.id', $activeCategory);
         })->whereActive(1)->paginate($paginate);
         $data['words'] = $words;
@@ -268,7 +268,7 @@ class CatalogController extends Controller
             $tree = new Tree();
             $activeCategory = $tree->listActiveCategories($getActiveCategory);
 
-            return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function($q) use($activeCategory){
+            return LarrockCatalog::getModel()->whereActive(1)->whereHas('getCategory', function($q) use($activeCategory){
                 $q->whereIn(LarrockCategory::getTable() .'.id', $activeCategory);
             })->get();
         });

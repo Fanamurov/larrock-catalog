@@ -4,7 +4,7 @@ namespace Larrock\ComponentCatalog\Helpers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Larrock\ComponentCatalog\Facades\LarrockCatalog;
+use LarrockCatalog;
 use Larrock\Core\Models\Link;
 use Cache;
 
@@ -20,7 +20,7 @@ class Filters
     {
         $data_query = LarrockCatalog::getModel()::whereActive(1);
         if($category_array){
-            $data_query->whereHas('get_category', function ($q) use ($category_array){
+            $data_query->whereHas('getCategory', function ($q) use ($category_array){
                 $q->whereIn('category.id', $category_array);
             });
         }

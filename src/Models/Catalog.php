@@ -108,11 +108,10 @@ use Spatie\MediaLibrary\Media;
  */
 class Catalog extends Model implements HasMediaConversions
 {
-    /**
-     * @var $this Component
-     */
+    /** @var $this Component */
     protected $config;
-    
+
+    use SearchableTrait;
     use HasMediaTrait;
     use GetFilesAndImages;
     use GetSeo;
@@ -140,8 +139,6 @@ class Catalog extends Model implements HasMediaConversions
         $this->config = LarrockCatalog::getConfig();
         $this->table = LarrockCatalog::getTable();
     }
-
-    use SearchableTrait;
 
     // no need for this, but you can define default searchable columns:
     protected $searchable = [
@@ -175,7 +172,7 @@ class Catalog extends Model implements HasMediaConversions
      * Alias
      * @return mixed
      */
-    public function get_category()
+    public function getCategory()
     {
         return $this->getLink(LarrockCategory::getModelName());
     }
@@ -256,6 +253,7 @@ class Catalog extends Model implements HasMediaConversions
     /**
      * Замена тегов плагинов на их данные
      * @return mixed
+     * @throws \Throwable
      */
     public function getDescriptionRenderAttribute()
     {

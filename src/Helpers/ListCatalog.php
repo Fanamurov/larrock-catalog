@@ -3,7 +3,7 @@
 namespace Larrock\ComponentCatalog\Helpers;
 
 use Cache;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
+use LarrockCategory;
 
 class ListCatalog
 {
@@ -21,8 +21,8 @@ class ListCatalog
                 $data['next_level'] = LarrockCategory::getModel()->whereParent($data['current']->id)->whereComponent('catalog')->whereActive(1)->get();
 
                 $data['parent_level'] = [];
-                if($get_category = LarrockCategory::getModel()->whereId($data['current']->parent)->whereComponent('catalog')->whereActive(1)->first()){
-                    $data['parent_level'] = LarrockCategory::getModel()->whereParent($get_category->parent)->whereComponent('catalog')->whereActive(1)->get();
+                if($getCategory = LarrockCategory::getModel()->whereId($data['current']->parent)->whereComponent('catalog')->whereActive(1)->first()){
+                    $data['parent_level'] = LarrockCategory::getModel()->whereParent($getCategory->parent)->whereComponent('catalog')->whereActive(1)->get();
                 }
             }
             return $data;

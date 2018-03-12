@@ -191,7 +191,7 @@ class CatalogComponent extends Component
             ->whereComponent('catalog')->whereParent(NULL)->get())){
             $table = LarrockCategory::getTable();
 
-            return LarrockCatalog::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
+            return LarrockCatalog::getModel()->whereActive(1)->whereHas('getCategory', function ($q) use ($activeCategory, $table){
                 $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);
             })->get();
         }
@@ -203,7 +203,7 @@ class CatalogComponent extends Component
         return Cache::rememberForever('search'. $this->name. $admin, function() use ($admin){
             $data = [];
             if($admin){
-                $items = LarrockCatalog::getModel()->with(['get_category'])->get(['id', 'title', 'url']);
+                $items = LarrockCatalog::getModel()->with(['getCategory'])->get(['id', 'title', 'url']);
             }else{
                 $items = LarrockCatalog::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'url']);
             }
@@ -213,11 +213,11 @@ class CatalogComponent extends Component
                 $data[$item->id]['component'] = $this->name;
                 $data[$item->id]['category'] = NULL;
                 if($admin){
-                    if($item->get_category){
-                        $data[$item->id]['category'] = $item->get_category->first()->title;
+                    if($item->getCategory){
+                        $data[$item->id]['category'] = $item->getCategory->first()->title;
                     }
                 }else{
-                    if($item->get_categoryActive){
+                    if($item->getCategoryActive){
                         $data[$item->id]['category'] = $item->getCategoryActive->first()->title;
                     }
                 }

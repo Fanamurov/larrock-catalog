@@ -4,7 +4,7 @@ namespace Larrock\ComponentCatalog\Middleware;
 
 use Cache;
 use Closure;
-use Larrock\ComponentCatalog\Facades\LarrockCatalog;
+use LarrockCatalog;
 
 class CatalogSearch
 {
