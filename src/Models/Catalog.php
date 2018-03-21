@@ -18,7 +18,7 @@ use Larrock\Core\Traits\GetSeo;
 use Spatie\MediaLibrary\Media;
 
 /**
- * App\Models\Catalog
+ * \Larrock\ComponentCatalog\Catalog
  *
  * @property integer $id
  * @property integer $group

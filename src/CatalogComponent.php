@@ -60,11 +60,11 @@ class CatalogComponent extends Component
 
         $row = new FormInput('cost', 'Цена');
         $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setInTableAdminAjaxEditable()->setSorted()->setFillable();
+            ->setInTableAdminEditable()->setSorted()->setFillable();
 
         $row = new FormInput('cost_old', 'Старая цена');
         $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setFillable()->setInTableAdminAjaxEditable();
+            ->setFillable()->setInTableAdminEditable();
 
         $row = new FormSelect('what', 'Мера измерений');
         $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
