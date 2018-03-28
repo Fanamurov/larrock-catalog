@@ -10,12 +10,11 @@ use LarrockFeed;
 use Larrock\Core\Helpers\Plugins\RenderPlugins;
 use Larrock\Core\Traits\GetLink;
 use Nicolaslopezj\Searchable\SearchableTrait;
-use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
-use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
 use LarrockCatalog;
 use Larrock\Core\Traits\GetFilesAndImages;
 use Larrock\Core\Traits\GetSeo;
-use Spatie\MediaLibrary\Media;
+use Spatie\MediaLibrary\Models\Media;
 
 /**
  * \Larrock\ComponentCatalog\Catalog
@@ -64,7 +63,7 @@ use Spatie\MediaLibrary\Media;
  * @property string $min_part
  * @property-read mixed $full_url
  * @property-read mixed $class_element
- * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Media[] $media
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Models\Media[] $media
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereVidRaz($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereRazmer($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereWeight($value)
@@ -92,9 +91,11 @@ use Spatie\MediaLibrary\Media;
  * @property mixed $description_render
  * @property mixed|null $description_item_on_link
  * @property mixed $short_render
+ * @property mixed $config
  * @property-read mixed $cut_description
  * @property-read mixed $cost_discount
  * @property-read mixed $sizes
+ * @property mixed description_link
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog wherePrintVid($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereRazmerH($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereRazmerW($value)
@@ -106,16 +107,12 @@ use Spatie\MediaLibrary\Media;
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereLabelPopular($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog whereUserId($value)
  */
-class Catalog extends Model implements HasMediaConversions
+class Catalog extends Model implements HasMedia
 {
     /** @var $this Component */
     protected $config;
 
-    use SearchableTrait;
-    use HasMediaTrait;
-    use GetFilesAndImages;
-    use GetSeo;
-    use GetLink;
+    use SearchableTrait, GetFilesAndImages, GetSeo, GetLink;
 
     /**
      * Create a new Eloquent model instance.
@@ -232,9 +229,10 @@ class Catalog extends Model implements HasMediaConversions
         return str_limit(strip_tags($this->description), 150, '...<a href="'. $this->full_url .'">далее</a>');
     }
 
-     /**
+    /**
      * Замена тегов плагинов на их данные
      * @return mixed
+     * @throws \Throwable
      */
     public function getShortRenderAttribute()
     {
@@ -282,16 +280,12 @@ class Catalog extends Model implements HasMediaConversions
                 ? $this->media
                 : collect($this->unAttachedMediaLibraryItems)->pluck('media');
 
-            return $collection
-                ->filter(function (Media $mediaItem) use ($collectionName) {
-                    if ($collectionName == '') {
+            return $collection->filter(function (Media $mediaItem) use ($collectionName) {
+                    if ($collectionName === '') {
                         return true;
                     }
-
                     return $mediaItem->collection_name === $collectionName;
-                })
-                ->sortBy('order_column')
-                ->values();
+                })->sortBy('order_column')->values();
         });
     }
 }

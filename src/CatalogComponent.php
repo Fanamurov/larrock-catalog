@@ -46,64 +46,63 @@ class CatalogComponent extends Component
     protected function addRows()
     {
         $row = new FormTags('category', 'Раздел');
-        $this->rows['category'] = $row->setValid('required')
+        $this->setRow($row->setValid('required')
             ->setModels(Catalog::class, Category::class)
-            ->setModelChildWhere('component', 'catalog');
+            ->setModelChildWhere('component', 'catalog'));
 
         $row = new FormInput('title', 'Название товара');
-        $this->rows['title'] = $row->setValid('max:255|required')->setTypo()->setFillable();
+        $this->setRow($row->setValid('max:255|required')->setTypo()->setFillable());
 
         $row = new FormTags('param', 'Варианты поставки товара');
-        $this->rows['param'] = $row->setModels(Catalog::class, Param::class)
+        $this->setRow($row->setModels(Catalog::class, Param::class)
             ->setAllowCreate()->setCostValue()->setFiltered()->setHelp('Данное поле переопределяет цену товара. 
-            Стандартное поле "Цена" учитываться не будет. Внесение цен модификаций товара доступно после сохранения');
+            Стандартное поле "Цена" учитываться не будет. Внесение цен модификаций товара доступно после сохранения'));
 
         $row = new FormInput('cost', 'Цена');
-        $this->rows['cost'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setInTableAdminEditable()->setSorted()->setFillable();
+        $this->setRow($row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setInTableAdminEditable()->setSorted()->setFillable());
 
         $row = new FormInput('cost_old', 'Старая цена');
-        $this->rows['cost_old'] = $row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setFillable()->setInTableAdminEditable();
+        $this->setRow($row->setValid('max:15')->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setFillable()->setInTableAdminEditable());
 
         $row = new FormSelect('what', 'Мера измерений');
-        $this->rows['what'] = $row->setValid('max:15|required')->setAllowCreate()
+        $this->setRow($row->setValid('max:15|required')->setAllowCreate()
             ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
             ->setConnect(Catalog::class, NULL, 'what')
-            ->setDefaultValue('руб./шт')->setFillable();
+            ->setDefaultValue('руб./шт')->setFillable());
 
         $row = new FormTextarea('short', 'Короткое описание');
-        $this->rows['short'] = $row->setTypo()->setFillable();
+        $this->setRow($row->setTypo()->setFillable());
 
         $row = new FormTextarea('description', 'Полное описание');
-        $this->rows['description'] = $row->setTypo()->setFillable();
+        $this->setRow($row->setTypo()->setFillable());
 
         $row = new FormInput('manufacture', 'Производитель');
-        $this->rows['manufacture'] = $row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setFillable()->setFiltered()->setTemplate('in_card');
+        $this->setRow($row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setFillable()->setFiltered()->setTemplate('in_card'));
 
         $row = new FormInput('articul', 'Артикул');
-        $this->rows['articul'] = $row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setTemplate('in_card')->setFillable();
+        $this->setRow($row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
+            ->setTemplate('in_card')->setFillable());
 
         $row = new FormInput('description_link', 'ID материала Feed для описания');
-        $this->rows['description_link'] = $row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')
-            ->setFillable();
+        $this->setRow($row->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable());
 
         $row = new FormCheckbox('label_new', 'Метка нового');
-        $this->rows['label_new'] = $row->setTab('tags','Метки')
-            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
+        $this->setRow($row->setTab('tags','Метки')
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable());
 
         $row = new FormCheckbox('label_popular', 'Метка популярное');
-        $this->rows['label_popular'] = $row->setTab('tags','Метки')
-            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
+        $this->setRow($row->setTab('tags','Метки')
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable());
 
         $row = new FormInput('label_sale', 'Метка скидка (%)');
-        $this->rows['label_sale'] = $row->setTab('tags','Метки')
-            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable();
+        $this->setRow($row->setTab('tags','Метки')
+            ->setCssClassGroup('uk-width-1-2 uk-width-1-3@m')->setFillable());
 
         $row = new FormHidden('user_id', 'user_id');
-        $this->rows['user_id'] = $row->setDefaultValue(NULL)->setFillable();
+        $this->setRow($row->setDefaultValue(NULL)->setFillable());
 
         return $this;
     }
@@ -213,11 +212,11 @@ class CatalogComponent extends Component
                 $data[$item->id]['component'] = $this->name;
                 $data[$item->id]['category'] = NULL;
                 if($admin){
-                    if($item->getCategory){
+                    if($item->getCategory && \count($item->getCategory) > 0){
                         $data[$item->id]['category'] = $item->getCategory->first()->title;
                     }
                 }else{
-                    if($item->getCategoryActive){
+                    if($item->getCategoryActive && \count($item->getCategoryActive) > 0){
                         $data[$item->id]['category'] = $item->getCategoryActive->first()->title;
                     }
                 }
