@@ -2,6 +2,7 @@
 
 namespace Larrock\ComponentCatalog\Models;
 
+use Larrock\Core\Helpers\MessageLarrock;
 use LarrockCategory;
 use Larrock\Core\Component;
 use Cache;
@@ -183,18 +184,30 @@ class Catalog extends Model implements HasMedia
         return $this->getLink(LarrockCategory::getModelName())->where(LarrockCategory::getTable() .'.active', '=', 1);
     }
 
+    /**
+     * Построение ссылки на товар
+     * @return mixed
+     */
     public function getFullUrlAttribute()
     {
         return Cache::rememberForever('url_catalog'. $this->id, function() {
             $url = '/catalog';
-            foreach ($this->getLink(LarrockCategory::getModelName())->first()->parent_tree as $category){
-                $url .= '/'. $category->url;
+            if($this->getLink(LarrockCategory::getModelName())->first()){
+                foreach ($this->getLink(LarrockCategory::getModelName())->first()->parent_tree as $category){
+                    $url .= '/'. $category->url;
+                }
+                $url .= '/'. $this->url;
+                return $url;
             }
-            $url .= '/'. $this->url;
-            return $url;
+            MessageLarrock::danger('Раздел из связи более не существует. Товар: '. $this->id .' '. $this->title .'. Ссылка на товар не будет сгенерирована', TRUE);
+            return null;
         });
     }
 
+    /**
+     * Построение ссылки на раздел товара
+     * @return null|string
+     */
     public function getFullUrlCategoryAttribute()
     {
         if($get_category = $this->getLink(LarrockCategory::getModelName())->first()){
@@ -203,6 +216,9 @@ class Catalog extends Model implements HasMedia
         return NULL;
     }
 
+    /**
+     * @return null|Model
+     */
     public function getDescriptionItemOnLinkAttribute()
     {
         if(config('larrock.catalog.DescriptionCatalogItemLink')){
@@ -211,16 +227,26 @@ class Catalog extends Model implements HasMedia
         return NULL;
     }
 
+    /**
+     * @return string
+     */
     public function getUrlToSearchAttribute()
     {
         return '/search/catalog/serp/'. \Request::get('q');
     }
 
+    /**
+     * @return string
+     */
     public function getClassElementAttribute()
     {
         return 'product';
     }
 
+    /**
+     * Получение обрезанного до 150 символов описания товара
+     * @return string
+     */
     public function getCutDescriptionAttribute()
     {
         if( !empty($this->short)){
