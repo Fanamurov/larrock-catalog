@@ -20,7 +20,7 @@ class LarrockComponentCatalogServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../views', 'larrock');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->publishes([
-            __DIR__.'/../views' => base_path('resources/views/vendor/larrock')
+            __DIR__.'/../views' => base_path('resources/views/vendor/larrock'),
         ]);
     }
 
@@ -31,8 +31,9 @@ class LarrockComponentCatalogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('larrockcatalog', function() {
+        $this->app->singleton('larrockcatalog', function () {
             $class = config('larrock.components.catalog', CatalogComponent::class);
+
             return new $class;
         });
 

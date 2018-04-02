@@ -2,39 +2,39 @@
 
 namespace Larrock\ComponentCatalog\Models;
 
-use Larrock\Core\Helpers\MessageLarrock;
+use Cache;
+use LarrockFeed;
+use LarrockCatalog;
 use LarrockCategory;
 use Larrock\Core\Component;
-use Cache;
-use Illuminate\Database\Eloquent\Model;
-use LarrockFeed;
-use Larrock\Core\Helpers\Plugins\RenderPlugins;
-use Larrock\Core\Traits\GetLink;
-use Nicolaslopezj\Searchable\SearchableTrait;
-use Spatie\MediaLibrary\HasMedia\HasMedia;
-use LarrockCatalog;
-use Larrock\Core\Traits\GetFilesAndImages;
 use Larrock\Core\Traits\GetSeo;
+use Larrock\Core\Traits\GetLink;
 use Spatie\MediaLibrary\Models\Media;
+use Illuminate\Database\Eloquent\Model;
+use Larrock\Core\Helpers\MessageLarrock;
+use Larrock\Core\Traits\GetFilesAndImages;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Nicolaslopezj\Searchable\SearchableTrait;
+use Larrock\Core\Helpers\Plugins\RenderPlugins;
 
 /**
- * \Larrock\ComponentCatalog\Catalog
+ * \Larrock\ComponentCatalog\Catalog.
  *
- * @property integer $id
- * @property integer $group
+ * @property int $id
+ * @property int $group
  * @property string $title
  * @property string $short
  * @property string $description
- * @property integer $category
+ * @property int $category
  * @property string $url
  * @property string $what
  * @property float $cost
  * @property float $cost_old
  * @property string $manufacture
- * @property integer $position
+ * @property int $position
  * @property string $articul
- * @property integer $active
- * @property integer $nalichie
+ * @property int $active
+ * @property int $nalichie
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentCatalog\Models\Catalog find($value)
@@ -84,11 +84,11 @@ use Spatie\MediaLibrary\Models\Media;
  * @property string $razmer_w
  * @property string $size
  * @property string $maket
- * @property integer $sales
- * @property integer $label_sale
- * @property integer $label_new
- * @property integer $label_popular
- * @property integer $user_id
+ * @property int $sales
+ * @property int $label_sale
+ * @property int $label_new
+ * @property int $label_popular
+ * @property int $user_id
  * @property mixed $description_render
  * @property mixed|null $description_item_on_link
  * @property mixed $short_render
@@ -124,9 +124,10 @@ class Catalog extends Model implements HasMedia
     public function __construct(array $attributes = [])
     {
         parent::__construct();
-        $columns = Cache::rememberForever('fillableCatalog', function(){
+        $columns = Cache::rememberForever('fillableCatalog', function () {
             $columns = \Schema::getColumnListing('catalog');
             $columns = collect($columns)->except(['id', 'created_at', 'updated_at']);
+
             return $columns->toArray();
         });
 
@@ -141,8 +142,8 @@ class Catalog extends Model implements HasMedia
     // no need for this, but you can define default searchable columns:
     protected $searchable = [
         'columns' => [
-            'catalog.title' => 10
-        ]
+            'catalog.title' => 10,
+        ],
     ];
 
     protected $casts = [
@@ -150,7 +151,7 @@ class Catalog extends Model implements HasMedia
         'active' => 'integer',
         'cost' => 'float',
         'cost_old' => 'float',
-        'nalichie' => 'integer'
+        'nalichie' => 'integer',
     ];
 
     protected $appends = [
@@ -158,7 +159,7 @@ class Catalog extends Model implements HasMedia
         'full_url_category',
         'url_to_search',
         'class_element',
-        'first_image'
+        'first_image',
     ];
 
     public function getConfig()
@@ -167,7 +168,7 @@ class Catalog extends Model implements HasMedia
     }
 
     /**
-     * Alias
+     * Alias.
      * @return mixed
      */
     public function getCategory()
@@ -176,12 +177,12 @@ class Catalog extends Model implements HasMedia
     }
 
     /**
-     * Alias
+     * Alias.
      * @return mixed
      */
     public function getCategoryActive()
     {
-        return $this->getLink(LarrockCategory::getModelName())->where(LarrockCategory::getTable() .'.active', '=', 1);
+        return $this->getLink(LarrockCategory::getModelName())->where(LarrockCategory::getTable().'.active', '=', 1);
     }
 
     /**
@@ -190,30 +191,33 @@ class Catalog extends Model implements HasMedia
      */
     public function getFullUrlAttribute()
     {
-        return Cache::rememberForever('url_catalog'. $this->id, function() {
+        return Cache::rememberForever('url_catalog'.$this->id, function () {
             $url = '/catalog';
-            if($this->getLink(LarrockCategory::getModelName())->first()){
-                foreach ($this->getLink(LarrockCategory::getModelName())->first()->parent_tree as $category){
-                    $url .= '/'. $category->url;
+            if ($this->getLink(LarrockCategory::getModelName())->first()) {
+                foreach ($this->getLink(LarrockCategory::getModelName())->first()->parent_tree as $category) {
+                    $url .= '/'.$category->url;
                 }
-                $url .= '/'. $this->url;
+                $url .= '/'.$this->url;
+
                 return $url;
             }
-            MessageLarrock::danger('Раздел из связи более не существует. Товар: '. $this->id .' '. $this->title .'. Ссылка на товар не будет сгенерирована', TRUE);
+            MessageLarrock::danger('Раздел из связи более не существует. Товар: '.$this->id.' '.$this->title.'. Ссылка на товар не будет сгенерирована', true);
+
             return null;
         });
     }
 
     /**
-     * Построение ссылки на раздел товара
+     * Построение ссылки на раздел товара.
      * @return null|string
      */
     public function getFullUrlCategoryAttribute()
     {
-        if($get_category = $this->getLink(LarrockCategory::getModelName())->first()){
+        if ($get_category = $this->getLink(LarrockCategory::getModelName())->first()) {
             return $get_category->full_url;
         }
-        return NULL;
+
+        return null;
     }
 
     /**
@@ -221,10 +225,11 @@ class Catalog extends Model implements HasMedia
      */
     public function getDescriptionItemOnLinkAttribute()
     {
-        if(config('larrock.catalog.DescriptionCatalogItemLink')){
+        if (config('larrock.catalog.DescriptionCatalogItemLink')) {
             return LarrockFeed::getModel()->find($this->description_link);
         }
-        return NULL;
+
+        return null;
     }
 
     /**
@@ -232,7 +237,7 @@ class Catalog extends Model implements HasMedia
      */
     public function getUrlToSearchAttribute()
     {
-        return '/search/catalog/serp/'. \Request::get('q');
+        return '/search/catalog/serp/'.\Request::get('q');
     }
 
     /**
@@ -244,74 +249,79 @@ class Catalog extends Model implements HasMedia
     }
 
     /**
-     * Получение обрезанного до 150 символов описания товара
+     * Получение обрезанного до 150 символов описания товара.
      * @return string
      */
     public function getCutDescriptionAttribute()
     {
-        if( !empty($this->short)){
+        if (! empty($this->short)) {
             return str_limit(strip_tags($this->short), 150, '...');
         }
-        return str_limit(strip_tags($this->description), 150, '...<a href="'. $this->full_url .'">далее</a>');
+
+        return str_limit(strip_tags($this->description), 150, '...<a href="'.$this->full_url.'">далее</a>');
     }
 
     /**
-     * Замена тегов плагинов на их данные
+     * Замена тегов плагинов на их данные.
      * @return mixed
      * @throws \Throwable
      */
     public function getShortRenderAttribute()
     {
-        $cache_key = 'ShortRender'. $this->table.'-'. $this->id;
-        if(\Auth::check()){
-            $cache_key .= '-'. \Auth::user()->role->first()->level;
+        $cache_key = 'ShortRender'.$this->table.'-'.$this->id;
+        if (\Auth::check()) {
+            $cache_key .= '-'.\Auth::user()->role->first()->level;
         }
 
-        return \Cache::rememberForever($cache_key, function(){
+        return \Cache::rememberForever($cache_key, function () {
             $renderPlugins = new RenderPlugins($this->short, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
+
             return $render->rendered_html;
         });
     }
 
     /**
-     * Замена тегов плагинов на их данные
+     * Замена тегов плагинов на их данные.
      * @return mixed
      * @throws \Throwable
      */
     public function getDescriptionRenderAttribute()
     {
-        $cache_key = 'DescriptionRender'. $this->table.'-'. $this->id;
-        if(\Auth::check()){
-            $cache_key .= '-'. \Auth::user()->role->first()->level;
+        $cache_key = 'DescriptionRender'.$this->table.'-'.$this->id;
+        if (\Auth::check()) {
+            $cache_key .= '-'.\Auth::user()->role->first()->level;
         }
 
-        return \Cache::rememberForever($cache_key, function(){
+        return \Cache::rememberForever($cache_key, function () {
             $renderPlugins = new RenderPlugins($this->description, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
+
             return $render->rendered_html;
         });
     }
 
     /**
-     * Перезаписываем метод из HasMediaTrait, добавляем кеш
+     * Перезаписываем метод из HasMediaTrait, добавляем кеш.
      * @param string $collectionName
      * @return mixed
      */
     public function loadMedia(string $collectionName)
     {
-        $cache_key = sha1('loadMediaCache'. $collectionName . $this->id . $this->getConfig()->getModelName());
+        $cache_key = sha1('loadMediaCache'.$collectionName.$this->id.$this->getConfig()->getModelName());
+
         return Cache::rememberForever($cache_key, function () use ($collectionName) {
             $collection = $this->exists
                 ? $this->media
                 : collect($this->unAttachedMediaLibraryItems)->pluck('media');
 
             return $collection->filter(function (Media $mediaItem) use ($collectionName) {
-                    if ($collectionName === '') {
-                        return true;
-                    }
-                    return $mediaItem->collection_name === $collectionName;
-                })->sortBy('order_column')->values();
+                if ($collectionName === '') {
+                    return true;
+                }
+
+                return $mediaItem->collection_name === $collectionName;
+            })->sortBy('order_column')->values();
         });
     }
 }

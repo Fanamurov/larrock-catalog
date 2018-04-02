@@ -17,26 +17,28 @@ class RandomCatalogItems
     public function handle($request, Closure $next)
     {
         $show_items = [];
-        $get_categories = Cache::rememberForever('get_categoriesRandomCatalogItems', function(){
-            if(config('larrock.catalog.RandomCatalogItems.categories')){
+        $get_categories = Cache::rememberForever('get_categoriesRandomCatalogItems', function () {
+            if (config('larrock.catalog.RandomCatalogItems.categories')) {
                 return LarrockCategory::getModel()->whereActive(1)
-                    ->whereIn(LarrockCategory::getTable(). '.id', config('larrock.catalog.RandomCatalogItems.categories'))
+                    ->whereIn(LarrockCategory::getTable().'.id', config('larrock.catalog.RandomCatalogItems.categories'))
                     ->whereComponent('catalog')->get(['id']);
             }
+
             return LarrockCategory::getModel()->whereActive(1)
                 ->whereLevel(config('larrock.catalog.RandomCatalogItems.level', 3))
                 ->whereComponent('catalog')->get(['id']);
         });
 
-        if($get_categories && \count($get_categories) > 0){
+        if ($get_categories && \count($get_categories) > 0) {
             $select_categories = $get_categories->random(config('larrock.catalog.RandomCatalogItems.items', 3));
-            foreach ($select_categories as $category){
-                if($category->getGoodsActive()->count() > 0){
+            foreach ($select_categories as $category) {
+                if ($category->getGoodsActive()->count() > 0) {
                     $show_items[] = $category->getGoodsActive()->get()->random(1)->first();
                 }
             }
         }
         \View::share('RandomCatalogItems', $show_items);
+
         return $next($request);
     }
 }
