@@ -13,5 +13,4 @@ class LarrockCatalog extends Facade
     {
         return 'larrockcatalog';
     }
-
 }
