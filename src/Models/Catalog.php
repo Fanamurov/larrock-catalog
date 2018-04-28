@@ -3,13 +3,13 @@
 namespace Larrock\ComponentCatalog\Models;
 
 use Cache;
-use Larrock\Core\Traits\GetAdminLink;
 use LarrockFeed;
 use LarrockCatalog;
 use LarrockCategory;
 use Larrock\Core\Component;
 use Larrock\Core\Traits\GetSeo;
 use Larrock\Core\Traits\GetLink;
+use Larrock\Core\Traits\GetAdminLink;
 use Spatie\MediaLibrary\Models\Media;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\Core\Helpers\MessageLarrock;
