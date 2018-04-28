@@ -203,38 +203,6 @@ class CatalogComponent extends Component
         return [];
     }
 
-    public function search($admin = null)
-    {
-        return Cache::rememberForever('search'.$this->name.$admin, function () use ($admin) {
-            $data = [];
-            if ($admin) {
-                $items = LarrockCatalog::getModel()->with(['getCategory'])->get(['id', 'title', 'url']);
-            } else {
-                $items = LarrockCatalog::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'url']);
-            }
-            foreach ($items as $item) {
-                $data[$item->id]['id'] = $item->id;
-                $data[$item->id]['title'] = $item->title;
-                $data[$item->id]['component'] = $this->name;
-                $data[$item->id]['category'] = null;
-                if ($admin) {
-                    if ($item->getCategory && \count($item->getCategory) > 0) {
-                        $data[$item->id]['category'] = $item->getCategory->first()->title;
-                    }
-                } else {
-                    if ($item->getCategoryActive && \count($item->getCategoryActive) > 0) {
-                        $data[$item->id]['category'] = $item->getCategoryActive->first()->title;
-                    }
-                }
-            }
-            if (\count($data) === 0) {
-                return null;
-            }
-
-            return $data;
-        });
-    }
-
     public function toDashboard()
     {
         $data = Cache::rememberForever('LarrockCatalogItemsDashboard', function () {

@@ -3,6 +3,7 @@
 namespace Larrock\ComponentCatalog\Models;
 
 use Cache;
+use Larrock\Core\Traits\GetAdminLink;
 use LarrockFeed;
 use LarrockCatalog;
 use LarrockCategory;
@@ -113,7 +114,7 @@ class Catalog extends Model implements HasMedia
     /** @var $this Component */
     protected $config;
 
-    use SearchableTrait, GetFilesAndImages, GetSeo, GetLink;
+    use SearchableTrait, GetFilesAndImages, GetSeo, GetLink, GetAdminLink;
 
     /**
      * Create a new Eloquent model instance.
