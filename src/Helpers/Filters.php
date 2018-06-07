@@ -32,7 +32,7 @@ class Filters
             $data_query = $data_query->whereHas('getAllLinks', function ($q) use ($request) {
                 foreach (LarrockCatalog::getRows() as $row_key => $row_value) {
                     if ($row_value->filtered && $request->has($row_key) && \is_array($request->get($row_key))) {
-                        if ($row_value->attached) {
+                        if ($row_value instanceof FormTags) {
                             $model_param = new $row_value->modelChild;
                             $params = $model_param->whereIn('title', $request->get($row_key))->get();
                             $params_array = [];
