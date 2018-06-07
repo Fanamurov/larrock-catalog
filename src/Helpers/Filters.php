@@ -104,6 +104,7 @@ class Filters
                     unset($filters[$key][$item_key]);
                 }
             }
+            $filters[$key] = $filters[$key]->sort();
         }
 
         if (\count($filters) > 0) {
