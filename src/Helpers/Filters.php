@@ -3,6 +3,9 @@
 namespace Larrock\ComponentCatalog\Helpers;
 
 use Cache;
+use Larrock\Core\Helpers\FormBuilder\FormSelect;
+use Larrock\Core\Helpers\FormBuilder\FormSelectKey;
+use Larrock\Core\Helpers\FormBuilder\FormTags;
 use LarrockCatalog;
 use Illuminate\Http\Request;
 use Larrock\Core\Models\Link;
@@ -68,19 +71,27 @@ class Filters
                 $filters[$row_key] = $data->groupBy($row_key)->keys();
             }
 
-            if ($row_value->filtered && $row_value->attached) {
-                $links = collect();
-                foreach ($data as $item) {
-                    $links->push(Link::whereIdParent($item->id)->whereModelParent(LarrockCatalog::getModelName())->whereModelChild($row_value->modelChild)->get());
-                }
-                $filters[$row_key] = [];
-                /** @var Collection $links */
-                $links = $links->collapse()->groupBy('id_parent');
-                foreach ($links as $link) {
-                    foreach ($link as $link_item) {
-                        if ($link_item->getFullDataChild()) {
-                            $filters[$row_key][] = $link_item->getFullDataChild()->title;
+            if ($row_value->filtered) {
+                if ($row_value instanceof FormTags) {
+                    $links = collect();
+                    foreach ($data as $item) {
+                        $links->push(Link::whereIdParent($item->id)->whereModelParent(LarrockCatalog::getModelName())->whereModelChild($row_value->modelChild)->get());
+                    }
+                    $filters[$row_key] = [];
+                    /** @var Collection $links */
+                    $links = $links->collapse()->groupBy('id_parent');
+                    foreach ($links as $link) {
+                        foreach ($link as $link_item) {
+                            if ($link_item->getFullDataChild()) {
+                                $filters[$row_key][] = $link_item->getFullDataChild()->title;
+                            }
                         }
+                    }
+                }
+
+                if ($row_value instanceof FormSelect || $row_value instanceof FormSelectKey) {
+                    foreach ($data as $item) {
+                        $filters[$row_key][] = $item->{$row_key};
                     }
                 }
             }

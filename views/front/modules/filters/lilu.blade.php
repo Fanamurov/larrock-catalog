@@ -4,7 +4,7 @@
             @if(count($filter) > 1 || (count($filter) === 1) && Request::has($key))
                 <div class="uk-button-dropdown uk-text-nowrap" data-uk-dropdown="{mode: 'click'}">
                     <button class="uk-button" type="button">
-                        {{ $app->getRows()[$key]->title }}:
+                        {{ $package->getRows()[$key]->title }}:
                         @if(Request::has($key) && is_array(Request::get($key)))
                             @foreach(Request::get($key) as $active_value)
                                 {{ $active_value }}@if( !$loop->last), @endif
