@@ -21,7 +21,7 @@ $data->title }}{{$seo_midd['catalog_item_postfix']}}{{ $seo_midd['postfix_global
                 <div class="catalog-description">
                     <div class="default-description" itemprop="description">{!! $data->description !!}</div>
                     <div class="catalog-descriptions-rows">
-                        @foreach($app->rows as $row_key => $row)
+                        @foreach($package->rows as $row_key => $row)
                             @if($row->template === 'description' && isset($data->{$row_key}) && !empty($data->{$row_key}))
                                 <p><strong>{{ $row->title }}:</strong> {{ $data->{$row_key} }}</p>
                             @endif

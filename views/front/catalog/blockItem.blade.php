@@ -40,7 +40,7 @@
             @endif
         </h5>
         <div class="catalog-descriptions-rows" itemprop="description">
-            @foreach($app->rows as $row_key => $row)
+            @foreach($package->rows as $row_key => $row)
                 @if($row->template && $row->template === 'in_card' && isset($data->{$row_key}) && !empty($data->{$row_key}))
                     <p class="catalog-d-{{ $row_key }}">{{ $data->{$row_key} }}</p>
                 @endif
