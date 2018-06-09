@@ -46,7 +46,7 @@ Breadcrumbs::register('catalog.index', function ($breadcrumbs) {
 });
 
 Breadcrumbs::register('catalog.item', function ($breadcrumbs, $data) {
-    foreach ($data->get_category as $category) {
+    foreach ($data->getCategory as $category) {
         foreach ($category->parent_tree as $key => $item) {
             if (in_array($item->url, \Route::current()->parameters())) {
                 $breadcrumbs->push($item->title, $item->full_url);
@@ -61,7 +61,9 @@ Breadcrumbs::register('catalog.search', function ($breadcrumbs, $words) {
 });
 
 Breadcrumbs::register('catalog.category', function ($breadcrumbs, $data) {
-    foreach ($data->parent_tree as $key => $item) {
-        $breadcrumbs->push($item->title, $item->full_url);
+    if(isset($data->parent_tree)) {
+        foreach ($data->parent_tree as $key => $item) {
+            $breadcrumbs->push($item->title, $item->full_url);
+        }
     }
 });

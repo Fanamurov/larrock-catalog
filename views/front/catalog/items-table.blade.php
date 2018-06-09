@@ -28,7 +28,7 @@
         @endif
     </div>
 
-    @if($data->description_category_on_link)
+    @if($data->description_category_on_link || !empty($data->description))
         <ul class="uk-tab uk-margin-large-top" data-uk-switcher="{connect:'#catalogCategoryContent'}">
             <li class="uk-active"><a href="">Прайс</a></li>
             <li><a href="">Описание</a></li>
@@ -43,6 +43,11 @@
                     <tr>
                         <th></th>
                         <th>Наименование</th>
+                        @foreach($package->rows as $row_key => $row)
+                            @if($row->template && $row->template === 'in_card')
+                                <th>{{ $row->title }}</th>
+                            @endif
+                        @endforeach
                         <th>Цена</th>
                         @if(file_exists(base_path(). '/vendor/fanamurov/larrock-cart'))
                             <th style="width: 40px"></th>
@@ -60,6 +65,11 @@
                                     {{ $item->title }}
                                 @endif
                             </td>
+                            @foreach($package->rows as $row_key => $row)
+                                @if($row->template && $row->template === 'in_card')
+                                    <td>{{ $item->{$row_key} }}</td>
+                                @endif
+                            @endforeach
                             <td>
                                 @if($data->cost > 0)
                                     {{ $item->cost }} <small>{{ $item->what }}</small>
