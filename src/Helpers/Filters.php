@@ -3,13 +3,13 @@
 namespace Larrock\ComponentCatalog\Helpers;
 
 use Cache;
-use Larrock\Core\Helpers\FormBuilder\FormSelect;
-use Larrock\Core\Helpers\FormBuilder\FormSelectKey;
-use Larrock\Core\Helpers\FormBuilder\FormTags;
 use LarrockCatalog;
 use Illuminate\Http\Request;
 use Larrock\Core\Models\Link;
 use Illuminate\Support\Collection;
+use Larrock\Core\Helpers\FormBuilder\FormTags;
+use Larrock\Core\Helpers\FormBuilder\FormSelect;
+use Larrock\Core\Helpers\FormBuilder\FormSelectKey;
 
 class Filters
 {
