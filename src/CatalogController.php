@@ -4,6 +4,7 @@ namespace Larrock\ComponentCatalog;
 
 use Cache;
 use Cookie;
+use Larrock\ComponentCatalog\Helpers\GetCategoriesArray;
 use Session;
 use LarrockCatalog;
 use LarrockCategory;
@@ -52,18 +53,10 @@ class CatalogController extends Controller
     {
         $select_item = last(\Route::current()->parameters());
 
-        //Проверка разделов из url на опубликованность
-        foreach (\Route::current()->parameters() as $param) {
-            if (! $category = LarrockCategory::getModel()->whereUrl($param)->first()) {
-                //Может это товар?
-                if (LarrockCatalog::getModel()->whereUrl($select_item)->first()) {
-                    return $this->getItem($select_item);
-                }
-                throw new \Exception('Раздел '.$param.' не существует', 404);
-            }
-            if ($category->active !== 1) {
-                throw new \Exception('Раздел '.$category.' не опубликован', 404);
-            }
+        $category_array = GetCategoriesArray::getCategoriesArray($select_item);
+
+        if (!$category_array) {
+            return $this->getItem($select_item);
         }
 
         $data = Cache::rememberForever('getCategoryCatalog'.$select_item, function () use ($select_item) {
@@ -80,32 +73,11 @@ class CatalogController extends Controller
             }
         }
 
-        if (config('larrock.catalog.categoryExpanded', true) === true) {
-            $cache_key = sha1('categoryArrayExp'.$select_item);
-            $category_array = Cache::rememberForever($cache_key, function () use ($data) {
-                $category_array = collect([]);
-                foreach ($data->getChildActive as $value) {
-                    if (config('larrock.catalog.categoryExpanded', true) === true) {
-                        $category_array->push($value->id);
-                        foreach ($value->getChildActive as $child_active) {
-                            $category_array->push($child_active->id);
-                        }
-                    }
-                }
-                if (\count($category_array) < 1) {
-                    $category_array = [$data->id];
-                }
-
-                return $category_array;
-            });
-        } else {
-            $category_array = collect([$data->id]);
-        }
-
         //Получаем товары в выборке разделов
         $filters = new Filters();
         $data->getGoodsActive = $filters->getTovarsByFilters($request, $category_array);
-        \View::share('filters', $filters->getFilters($data->getGoodsActive->get()));
+        \View::share('filters_available', $filters->getFilters($data->getGoodsActive->get()));
+        \View::share('filters', $filters->getAllFilters($select_item));
 
         $sorters = new Sorters();
         $data->getGoodsActive = $sorters->applySorts($data->getGoodsActive, $request);
