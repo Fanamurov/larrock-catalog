@@ -62,6 +62,6 @@ class GetCategoriesArray{
             });
         }
 
-        return collect([$data->id]);
+        return collect($category_array);
     }
 }
