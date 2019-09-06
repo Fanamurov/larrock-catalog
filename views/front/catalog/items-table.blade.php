@@ -44,7 +44,7 @@
                         <th></th>
                         <th>Наименование</th>
                         @foreach($package->rows as $row_key => $row)
-                            @if($row->template && $row->template === 'in_card')
+                            @if($row->template && ($row->template === 'category' || $row->template === 'all') && !empty($data->getGoodsActive->first()->{$row_key}))
                                 <th>{{ $row->title }}</th>
                             @endif
                         @endforeach
@@ -66,13 +66,13 @@
                                 @endif
                             </td>
                             @foreach($package->rows as $row_key => $row)
-                                @if($row->template && $row->template === 'in_card')
+                                @if($row->template && ($row->template === 'category' || $row->template === 'all') && !empty($item->{$row_key}))
                                     <td>{{ $item->{$row_key} }}</td>
                                 @endif
                             @endforeach
                             <td>
-                                @if($data->cost > 0)
-                                    {{ $item->cost }} <small>{{ $item->what }}</small>
+                                @if($item->cost > 0)
+                                    {{ $item->cost }} <small class="uk-text-nowrap">{{ $item->what }}</small>
                                 @else
                                     <small>цена договорная</small>
                                 @endif
