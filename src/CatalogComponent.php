@@ -186,13 +186,12 @@ class CatalogComponent extends Component
 
     public function createSitemap()
     {
-        $tree = new Tree();
-        if ($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
-            ->whereComponent('catalog')->whereParent(null)->get())) {
+        if (config('larrock.catalog.ShowItemPage', TRUE) === TRUE) {
+            $activeCategory = LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->get();
             $table = LarrockCategory::getTable();
 
             return LarrockCatalog::getModel()->whereActive(1)->whereHas('getCategory', function ($q) use ($activeCategory, $table) {
-                $q->where($table.'.sitemap', '=', 1)->whereIn($table.'.id', $activeCategory);
+                $q->where($table.'.sitemap', '=', 1)->whereIn($table.'.id', $activeCategory->pluck('id'));
             })->get();
         }
 
