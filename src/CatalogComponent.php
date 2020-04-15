@@ -29,6 +29,17 @@ class CatalogComponent extends Component
         $this->addRows()->addPositionAndActive()->isSearchable()->addPlugins();
     }
 
+    /**
+     * Получение конфигурации компонента
+     * Вывод в шаблон переменной $app с конфигом компонента, переменной $validator для JSValidation.
+     * @return $this
+     */
+    public function shareConfig()
+    {
+        $this->rows = $this->getRows();
+        return parent::shareConfig();
+    }
+
     protected function addPlugins()
     {
         $this->addPluginImages()->addPluginFiles()->addPluginSeo();
@@ -57,7 +68,7 @@ class CatalogComponent extends Component
 
         $row = new FormTags('param', 'Варианты поставки товара');
         $this->setRow($row->setModels(Catalog::class, Param::class)
-            ->setAllowCreate()->setCostValue()->setFiltered()->setHelp('Данное поле переопределяет цену товара. 
+            ->setAllowCreate()->setCostValue()->setFiltered()->setHelp('Данное поле переопределяет цену товара.
             Стандартное поле "Цена" учитываться не будет. Внесение цен модификаций товара доступно после сохранения'));
 
         $row = new FormInput('cost', 'Цена');
@@ -115,9 +126,7 @@ class CatalogComponent extends Component
      */
     public function mergeWizardConfig()
     {
-        if (!$data = Config::whereType('wizard')->whereName('catalog')->first()) {
-            return 'IGNORE';
-        }
+        $data = Config::whereType('wizard')->whereName('catalog')->first();
 
         if ($data && $data !== 'IGNORE') {
             foreach ($data->value as $wizard_key => $wizard_item) {
@@ -186,12 +195,13 @@ class CatalogComponent extends Component
 
     public function createSitemap()
     {
-        if (config('larrock.catalog.ShowItemPage', TRUE) === TRUE) {
-            $activeCategory = LarrockCategory::getModel()->whereComponent('catalog')->whereActive(1)->get();
+        $tree = new Tree();
+        if ($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
+            ->whereComponent('catalog')->whereParent(null)->get())) {
             $table = LarrockCategory::getTable();
 
             return LarrockCatalog::getModel()->whereActive(1)->whereHas('getCategory', function ($q) use ($activeCategory, $table) {
-                $q->where($table.'.sitemap', '=', 1)->whereIn($table.'.id', $activeCategory->pluck('id'));
+                $q->where($table.'.sitemap', '=', 1)->whereIn($table.'.id', $activeCategory);
             })->get();
         }
 
